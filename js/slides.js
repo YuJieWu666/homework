@@ -126,8 +126,13 @@ const slidesData = [
   },
   {
     type: "iframe",
+    src: "slide31.html",
+  },
+  {
+    type: "iframe",
     src: "slide22.html",
   },
+
   // 这里将添加其他幻灯片内容
 ];
 
