@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Temu跨境电商平台系统设计 - 智能推荐系统</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary: #2a3f8a;
+        --secondary: #4ecdc4;
+        --light: #a7e8e2;
+        --dark: #1a4545;
+        --accent: rgb(251, 119, 1);
+        --accent-light: #ffbdbd;
+        --text-light: #f8f9fa;
+        --text-dark: #343a40;
+        --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Noto Sans SC", sans-serif;
+        background-color: var(--text-light);
+        color: var(--text-dark);
+        overflow: hidden;
+        height: 100vh;
+        width: 100vw;
+      }
+
+      .slide-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* 顶部图片区域 */
+      .image-section {
+        width: 100%;
+        height: 40%;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .image-container {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .image-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+      }
+
+      .image-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          to bottom,
+          rgba(26, 69, 69, 0.7),
+          rgba(44, 110, 110, 0.9)
+        );
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        text-align: center;
+        padding: 0 20%;
+      }
+
+      .overlay-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        opacity: 0;
+        animation: fadeInDown 0.8s ease-out forwards;
+      }
+
+      .overlay-desc {
+        font-size: 1.2rem;
+        line-height: 1.6;
+        max-width: 700px;
+        opacity: 0;
+        animation: fadeIn 0.8s ease-out forwards 0.3s;
+      }
+
+      /* 底部内容区域 */
+      .content-section {
+        width: 100%;
+        height: 60%;
+        position: relative;
+        background: white;
+        padding: 40px 80px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .title-area {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .subtitle {
+        font-size: 1.2rem;
+        color: var(--secondary);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+        opacity: 0;
+        animation: fadeIn 0.8s ease-out forwards 0.2s;
+      }
+
+      .brain-icon {
+        font-size: 2rem;
+        color: var(--primary);
+        margin-bottom: 10px;
+        opacity: 0;
+        animation: fadeIn 0.8s ease-out forwards 0.4s;
+      }
+
+      /* 推荐功能卡片区域 */
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 25px;
+        flex: 1;
+      }
+
+      .feature-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+        padding: 25px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      .feature-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: var(--secondary);
+      }
+
+      .card-1 {
+        animation: fadeInUp 0.6s ease-out forwards 0.2s;
+      }
+
+      .card-2 {
+        animation: fadeInUp 0.6s ease-out forwards 0.4s;
+      }
+
+      .card-3 {
+        animation: fadeInUp 0.6s ease-out forwards 0.6s;
+      }
+
+      .card-4 {
+        animation: fadeInUp 0.6s ease-out forwards 0.8s;
+      }
+
+      .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .feature-icon {
+        background-color: rgba(78, 205, 196, 0.1);
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 15px;
+        font-size: 1.8rem;
+        color: var(--secondary);
+      }
+
+      .feature-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--primary);
+        margin-bottom: 10px;
+      }
+
+      .feature-desc {
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: var(--text-dark);
+        flex: 1;
+      }
+
+      /* 用户连接线装饰 */
+      .connections {
+        position: absolute;
+        bottom: 15px;
+        left: 0;
+        width: 100%;
+        height: 30px;
+        display: flex;
+        justify-content: center;
+        opacity: 0.5;
+      }
+
+      .connection-line {
+        position: absolute;
+        height: 1px;
+        background: var(--primary);
+        opacity: 0.3;
+      }
+
+      .line-1 {
+        width: 100px;
+        transform: rotate(30deg);
+        left: 25%;
+        animation: pulseLine 3s infinite;
+      }
+
+      .line-2 {
+        width: 150px;
+        transform: rotate(-20deg);
+        left: 40%;
+        animation: pulseLine 4s infinite;
+      }
+
+      .line-3 {
+        width: 120px;
+        transform: rotate(15deg);
+        right: 30%;
+        animation: pulseLine 3.5s infinite;
+      }
+
+      .connection-dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--primary);
+        position: absolute;
+      }
+
+      .dot-1 {
+        left: 25%;
+        animation: pulseScale 3s infinite;
+      }
+
+      .dot-2 {
+        left: 45%;
+        animation: pulseScale 4s infinite;
+      }
+
+      .dot-3 {
+        right: 30%;
+        animation: pulseScale 3.5s infinite;
+      }
+
+      .dot-4 {
+        right: 20%;
+        animation: pulseScale 3s infinite;
+      }
+
+      /* 页脚 */
+      .footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 80px;
+        height: 50px;
+      }
+
+      .page-number {
+        font-size: 1rem;
+        color: var(--text-dark);
+        opacity: 0.7;
+      }
+
+      .logo {
+        height: 24px;
+      }
+
+      /* 动画效果 */
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadeInUp {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes pulseLine {
+        0% {
+          opacity: 0.2;
+        }
+        50% {
+          opacity: 0.5;
+        }
+        100% {
+          opacity: 0.2;
+        }
+      }
+
+      @keyframes pulseScale {
+        0% {
+          transform: scale(1);
+          opacity: 0.5;
+        }
+        50% {
+          transform: scale(1.5);
+          opacity: 0.8;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 0.5;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container">
+      <!-- 顶部图片区域 -->
+      <div class="image-section">
+        <div class="image-container">
+          <img src=".\static\Globalization.jpg" alt="智能售后系统" />
+          <div class="image-overlay">
+            <h1 class="overlay-title">智能售后系统</h1>
+            <p class="overlay-desc">
+              运用自然语言处理与机器学习技术，打造高效、智能的售后服务体系，提升用户满意度
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 底部内容区域 -->
+      <div class="content-section">
+        <div class="title-area">
+          <div class="brain-icon">🤖</div>
+          <div class="subtitle">AI-POWERED AFTER-SALES SERVICE</div>
+        </div>
+
+        <div class="features-grid">
+          <!-- 智能客服系统 -->
+          <div class="feature-card card-1">
+            <div class="feature-icon">💬</div>
+            <h3 class="feature-title">智能客服系统</h3>
+            <p class="feature-desc">
+              基于自然语言处理技术，实现智能客服自动化。自动识别用户问题类型，提供精准解答，7*24小时快速响应，显著提升客服效率与用户满意度。
+            </p>
+          </div>
+
+          <!-- 智能退换货处理 -->
+          <div class="feature-card card-2">
+            <div class="feature-icon">🔄</div>
+            <h3 class="feature-title">智能退换货处理</h3>
+            <p class="feature-desc">
+              运用机器学习算法优化退换货流程，自动评估申请合理性，智能匹配处理方案。实现退款自动化处理，大幅缩短处理时间，提升用户体验。
+            </p>
+          </div>
+
+          <!-- 统一售后政策 -->
+          <div class="feature-card card-3">
+            <div class="feature-icon">📋</div>
+            <h3 class="feature-title">统一售后标准</h3>
+            <p class="feature-desc">
+              建立全球统一的售后政策体系，消除地区差异。通过AI系统自动执行标准流程，减少人为干预，确保售后服务质量的一致性。
+            </p>
+          </div>
+
+          <!-- 智能质量监控 -->
+          <div class="feature-card card-4">
+            <div class="feature-icon">📊</div>
+            <h3 class="feature-title">售后质量监控</h3>
+            <p class="feature-desc">
+              实时监控售后服务质量指标，通过机器学习分析用户反馈，及时发现并解决服务问题。持续优化售后流程，提升整体服务质量。
+            </p>
+          </div>
+        </div>
+
+        <!-- 装饰性连接线 -->
+        <div class="connections">
+          <div class="connection-line line-1"></div>
+          <div class="connection-line line-2"></div>
+          <div class="connection-line line-3"></div>
+          <div class="connection-dot dot-1"></div>
+          <div class="connection-dot dot-2"></div>
+          <div class="connection-dot dot-3"></div>
+          <div class="connection-dot dot-4"></div>
+        </div>
+      </div>
+
+      <!-- 页脚 -->
+      <div class="footer">
+        <span class="page-number">14 / 20</span>
+        <img class="logo" src="images/temu_logo.svg" alt="Temu Logo" />
+      </div>
+    </div>
+  </body>
+</html>

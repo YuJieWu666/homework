@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Temu跨境电商平台系统设计 - 物流与配送问题</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary: #2a3f8a;
+        --secondary: #f8f9fa;
+        --accent: rgb(251, 119, 1);
+        --danger: #ff4e4e;
+        --warning: #ffb74d;
+        --info: #64b5f6;
+        --success: #81c784;
+        --text-light: #ffffff;
+        --text-dark: #2c3e50;
+        --text-secondary: #546e7a;
+        --border: #e0e0e0;
+        --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        --widget-bg: rgba(255, 255, 255, 0.95);
+        --bg-color: #f8f9fa;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Noto Sans SC", sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-dark);
+        overflow: hidden;
+        height: 100vh;
+        width: 100vw;
+        position: relative;
+      }
+
+      /* 背景地图效果 */
+      .map-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(
+            circle at 20% 30%,
+            rgba(251, 119, 1, 0.05) 0%,
+            transparent 40%
+          ),
+          radial-gradient(
+            circle at 80% 70%,
+            rgba(42, 63, 138, 0.05) 0%,
+            transparent 40%
+          ),
+          linear-gradient(var(--bg-color), var(--secondary));
+        opacity: 1;
+        z-index: 0;
+      }
+
+      .grid-lines {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: linear-gradient(
+            to right,
+            rgba(42, 63, 138, 0.03) 1px,
+            transparent 1px
+          ),
+          linear-gradient(
+            to bottom,
+            rgba(42, 63, 138, 0.03) 1px,
+            transparent 1px
+          );
+        background-size: 40px 40px;
+        z-index: 1;
+      }
+
+      .map-routes {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 2;
+        overflow: hidden;
+      }
+
+      .route {
+        position: absolute;
+        height: 2px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--accent),
+          transparent
+        );
+        opacity: 0.15;
+        z-index: 2;
+      }
+
+      .route-1 {
+        width: 40%;
+        top: 35%;
+        left: 10%;
+        transform: rotate(30deg);
+        animation: pulse 3s infinite;
+      }
+
+      .route-2 {
+        width: 30%;
+        top: 65%;
+        left: 30%;
+        transform: rotate(-20deg);
+        animation: pulse 4s infinite 1s;
+      }
+
+      .route-3 {
+        width: 25%;
+        top: 45%;
+        left: 60%;
+        transform: rotate(15deg);
+        animation: pulse 5s infinite 2s;
+      }
+
+      .route-dot {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: var(--accent);
+        z-index: 3;
+        animation: moveDot 5s linear infinite;
+      }
+
+      .route-dot-1 {
+        top: 35%;
+        left: 10%;
+      }
+
+      .route-dot-2 {
+        top: 65%;
+        left: 30%;
+        animation-delay: 1s;
+      }
+
+      .route-dot-3 {
+        top: 45%;
+        left: 60%;
+        animation-delay: 2s;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 0.1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
+
+      @keyframes moveDot {
+        0% {
+          transform: translateX(0) scale(1);
+        }
+        50% {
+          transform: translateX(150px) scale(1.5);
+        }
+        100% {
+          transform: translateX(300px) scale(1);
+          opacity: 0;
+        }
+      }
+
+      .dashboard-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        padding: 30px;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .title-section {
+        display: flex;
+        align-items: center;
+      }
+
+      .title-icon {
+        margin-right: 15px;
+        font-size: 2.5rem;
+        color: var(--accent);
+      }
+
+      .title-text h1 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 5px;
+      }
+
+      .title-text p {
+        font-size: 1rem;
+        color: var(--accent);
+        opacity: 0.8;
+      }
+
+      .header-stats {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .stat-widget {
+        background-color: var(--widget-bg);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 10px 15px;
+        min-width: 120px;
+        text-align: center;
+        box-shadow: var(--shadow);
+      }
+
+      .stat-value {
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+        color: var(--primary);
+      }
+
+      .stat-label {
+        font-size: 0.8rem;
+        opacity: 0.7;
+        color: var(--text-secondary);
+      }
+
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        gap: 25px;
+        flex: 1;
+      }
+
+      .widget {
+        background-color: var(--widget-bg);
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        animation: fadeIn 0.5s ease-in-out;
+        border: 1px solid var(--border);
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .widget-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .widget-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+      }
+
+      .widget-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 10px;
+        font-size: 1.2rem;
+      }
+
+      .widget-1 .widget-icon {
+        background-color: rgba(255, 78, 78, 0.1);
+        color: var(--danger);
+      }
+
+      .widget-2 .widget-icon {
+        background-color: rgba(255, 183, 77, 0.1);
+        color: var(--warning);
+      }
+
+      .widget-3 .widget-icon {
+        background-color: rgba(100, 181, 246, 0.1);
+        color: var(--info);
+      }
+
+      .widget-4 .widget-icon {
+        background-color: rgba(129, 199, 132, 0.1);
+        color: var(--success);
+      }
+
+      .widget-controls {
+        display: flex;
+        gap: 10px;
+      }
+
+      .widget-btn {
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(42, 63, 138, 0.1);
+        cursor: pointer;
+        font-size: 0.8rem;
+        color: var(--primary);
+      }
+
+      .widget-btn:hover {
+        background-color: rgba(42, 63, 138, 0.2);
+      }
+
+      .widget-description {
+        margin-bottom: 15px;
+        font-size: 0.95rem;
+        opacity: 0.8;
+        color: var(--text-secondary);
+      }
+
+      .widget-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* 包裹延迟送达Widget */
+      .delay-chart {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .delay-trend {
+        flex: 1;
+        display: flex;
+        align-items: flex-end;
+        gap: 8px;
+        margin-bottom: 15px;
+      }
+
+      .delay-bar {
+        flex: 1;
+        background-color: rgba(255, 78, 78, 0.1);
+        position: relative;
+        border-radius: 3px 3px 0 0;
+      }
+
+      .delay-fill {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: var(--danger);
+        border-radius: 3px 3px 0 0;
+      }
+
+      .delay-bar:nth-child(1) .delay-fill {
+        height: 40%;
+        animation: growBar 1.5s ease-out;
+      }
+
+      .delay-bar:nth-child(2) .delay-fill {
+        height: 35%;
+        animation: growBar 1.5s ease-out 0.1s;
+      }
+
+      .delay-bar:nth-child(3) .delay-fill {
+        height: 45%;
+        animation: growBar 1.5s ease-out 0.2s;
+      }
+
+      .delay-bar:nth-child(4) .delay-fill {
+        height: 30%;
+        animation: growBar 1.5s ease-out 0.3s;
+      }
+
+      .delay-bar:nth-child(5) .delay-fill {
+        height: 50%;
+        animation: growBar 1.5s ease-out 0.4s;
+      }
+
+      .delay-bar:nth-child(6) .delay-fill {
+        height: 60%;
+        animation: growBar 1.5s ease-out 0.5s;
+      }
+
+      .delay-bar:nth-child(7) .delay-fill {
+        height: 70%;
+        animation: growBar 1.5s ease-out 0.6s;
+      }
+
+      @keyframes growBar {
+        from {
+          height: 0;
+        }
+      }
+
+      .delay-labels {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .delay-label {
+        flex: 1;
+        text-align: center;
+        font-size: 0.7rem;
+        opacity: 0.7;
+      }
+
+      .delay-stats {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+        background-color: rgba(255, 78, 78, 0.1);
+        border-radius: 6px;
+        padding: 10px;
+      }
+
+      .delay-stat {
+        text-align: center;
+      }
+
+      .delay-stat-value {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--danger);
+      }
+
+      .delay-stat-label {
+        font-size: 0.7rem;
+        opacity: 0.7;
+        color: var(--text-secondary);
+      }
+
+      /* 异常物流处理Widget */
+      .process-chart {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .process-flow {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .process-node {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: rgba(255, 183, 77, 0.1);
+        color: var(--warning);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        position: relative;
+        z-index: 2;
+      }
+
+      .process-line {
+        flex: 1;
+        height: 2px;
+        background-color: rgba(255, 183, 77, 0.1);
+        position: relative;
+      }
+
+      .process-line::before {
+        content: "";
+        position: absolute;
+        top: -4px;
+        left: 0;
+        width: 10px;
+        height: 10px;
+        background-color: var(--widget-bg);
+        border-radius: 50%;
+        border: 2px solid rgba(255, 183, 77, 0.2);
+      }
+
+      .process-line::after {
+        content: "";
+        position: absolute;
+        top: -4px;
+        right: 0;
+        width: 10px;
+        height: 10px;
+        background-color: var(--widget-bg);
+        border-radius: 50%;
+        border: 2px solid rgba(255, 183, 77, 0.2);
+      }
+
+      .process-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+
+      .process-label {
+        width: 30px;
+        text-align: center;
+        font-size: 0.7rem;
+        opacity: 0.7;
+      }
+
+      .process-stats {
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .process-stat {
+        background-color: rgba(255, 183, 77, 0.1);
+        border-radius: 6px;
+        padding: 8px 12px;
+        text-align: center;
+        flex: 1;
+        min-width: 80px;
+      }
+
+      .process-stat-value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--warning);
+      }
+
+      .process-stat-label {
+        font-size: 0.7rem;
+        opacity: 0.7;
+        white-space: nowrap;
+        color: var(--text-secondary);
+      }
+
+      /* 物流成本差异Widget */
+      .cost-chart {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .cost-map {
+        flex: 1;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 15px;
+      }
+
+      .cost-region {
+        position: absolute;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        box-shadow: var(--shadow);
+        animation: fadeIn 1s ease-in-out;
+      }
+
+      .region-asia {
+        width: 70px;
+        height: 70px;
+        background-color: rgba(100, 181, 246, 0.1);
+        color: var(--info);
+        top: 10%;
+        right: 10%;
+      }
+
+      .region-europe {
+        width: 60px;
+        height: 60px;
+        background-color: rgba(100, 181, 246, 0.08);
+        color: var(--info);
+        top: 10%;
+        left: 15%;
+      }
+
+      .region-namerica {
+        width: 80px;
+        height: 80px;
+        background-color: rgba(100, 181, 246, 0.15);
+        color: var(--info);
+        bottom: 10%;
+        left: 25%;
+      }
+
+      .region-samerica {
+        width: 90px;
+        height: 90px;
+        background-color: rgba(100, 181, 246, 0.2);
+        color: var(--info);
+        bottom: 5%;
+        right: 15%;
+      }
+
+      .cost-connector {
+        position: absolute;
+        height: 1px;
+        background: var(--info);
+        opacity: 0.2;
+        transform-origin: left center;
+      }
+
+      .connector-1 {
+        width: 120px;
+        top: 45%;
+        left: 42%;
+        transform: rotate(-30deg);
+      }
+
+      .connector-2 {
+        width: 100px;
+        top: 40%;
+        left: 35%;
+        transform: rotate(60deg);
+      }
+
+      .connector-3 {
+        width: 150px;
+        top: 50%;
+        left: 55%;
+        transform: rotate(30deg);
+      }
+
+      .cost-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+
+      .cost-stat {
+        background-color: rgba(100, 181, 246, 0.1);
+        border-radius: 6px;
+        padding: 8px;
+        text-align: center;
+      }
+
+      .cost-stat-value {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--info);
+      }
+
+      .cost-stat-label {
+        font-size: 0.7rem;
+        opacity: 0.7;
+        color: var(--text-secondary);
+      }
+
+      /* 跨境清关预测Widget */
+      .customs-chart {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .customs-timeline {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        position: relative;
+      }
+
+      .customs-step {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: rgba(129, 199, 132, 0.1);
+        margin: 0 -6px;
+        position: relative;
+        z-index: 2;
+      }
+
+      .customs-step.active {
+        background-color: var(--success);
+      }
+
+      .customs-line {
+        flex: 1;
+        height: 2px;
+        background-color: rgba(129, 199, 132, 0.1);
+      }
+
+      .customs-line.active {
+        background-color: var(--success);
+      }
+
+      .customs-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+
+      .customs-label {
+        font-size: 0.7rem;
+        opacity: 0.7;
+        text-align: center;
+        width: 20%;
+      }
+
+      .uncertainty-meter {
+        height: 30px;
+        background-color: rgba(129, 199, 132, 0.1);
+        border-radius: 15px;
+        overflow: hidden;
+        margin-bottom: 20px;
+        position: relative;
+      }
+
+      .uncertainty-scale {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: space-between;
+        padding: 0 10px;
+        align-items: center;
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+      }
+
+      .uncertainty-marker {
+        position: absolute;
+        top: 5px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: var(--success);
+        transform: translateX(-50%);
+        animation: markerMove 4s infinite alternate;
+      }
+
+      @keyframes markerMove {
+        0% {
+          left: 30%;
+        }
+        100% {
+          left: 70%;
+        }
+      }
+
+      .customs-stats {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .customs-stat {
+        background-color: rgba(129, 199, 132, 0.1);
+        border-radius: 6px;
+        padding: 8px;
+        text-align: center;
+        flex: 1;
+        min-width: 70px;
+      }
+
+      .customs-stat-value {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--success);
+      }
+
+      .customs-stat-label {
+        font-size: 0.7rem;
+        opacity: 0.7;
+        color: var(--text-secondary);
+      }
+
+      .footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+        padding-top: 10px;
+        border-top: 1px solid var(--border);
+        font-size: 0.8rem;
+        opacity: 0.7;
+        color: var(--text-secondary);
+      }
+
+      .logo {
+        height: 30px;
+        opacity: 0.8;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 背景效果 -->
+    <div class="map-background"></div>
+    <div class="grid-lines"></div>
+    <div class="map-routes">
+      <div class="route route-1"></div>
+      <div class="route route-2"></div>
+      <div class="route route-3"></div>
+      <div class="route-dot route-dot-1"></div>
+      <div class="route-dot route-dot-2"></div>
+      <div class="route-dot route-dot-3"></div>
+    </div>
+
+    <div class="dashboard-container">
+      <div class="header">
+        <div class="title-section">
+          <div class="title-icon">📦</div>
+          <div class="title-text">
+            <h1>物流与配送问题</h1>
+            <p>LOGISTICS & DELIVERY ISSUES</p>
+          </div>
+        </div>
+        <div class="header-stats">
+          <div class="stat-widget">
+            <div class="stat-value">15-30天</div>
+            <div class="stat-label">平均配送时间</div>
+          </div>
+          <div class="stat-widget">
+            <div class="stat-value">42%</div>
+            <div class="stat-label">信息更新延迟率</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- 配送时间长问题 -->
+        <div class="widget widget-1">
+          <div class="widget-header">
+            <div class="widget-title">
+              <div class="widget-icon">⏱️</div>
+              配送时间长
+            </div>
+            <div class="widget-controls">
+              <div class="widget-btn">⋮</div>
+              <div class="widget-btn">↗</div>
+            </div>
+          </div>
+          <div class="widget-description">
+            跨境配送时间普遍较长，影响用户购物体验和满意度。
+          </div>
+          <div class="widget-content">
+            <div class="delay-chart">
+              <div class="delay-trend">
+                <div class="delay-bar">
+                  <div class="delay-fill"></div>
+                </div>
+                <div class="delay-bar">
+                  <div class="delay-fill"></div>
+                </div>
+                <div class="delay-bar">
+                  <div class="delay-fill"></div>
+                </div>
+                <div class="delay-bar">
+                  <div class="delay-fill"></div>
+                </div>
+                <div class="delay-bar">
+                  <div class="delay-fill"></div>
+                </div>
+                <div class="delay-bar">
+                  <div class="delay-fill"></div>
+                </div>
+                <div class="delay-bar">
+                  <div class="delay-fill"></div>
+                </div>
+              </div>
+              <div class="delay-labels">
+                <div class="delay-label">亚洲</div>
+                <div class="delay-label">欧洲</div>
+                <div class="delay-label">北美</div>
+                <div class="delay-label">南美</div>
+                <div class="delay-label">非洲</div>
+                <div class="delay-label">大洋洲</div>
+                <div class="delay-label">中东</div>
+              </div>
+              <div class="delay-stats">
+                <div class="delay-stat">
+                  <div class="delay-stat-value">15-30天</div>
+                  <div class="delay-stat-label">平均配送时间</div>
+                </div>
+                <div class="delay-stat">
+                  <div class="delay-stat-value">↑25%</div>
+                  <div class="delay-stat-label">用户投诉率</div>
+                </div>
+                <div class="delay-stat">
+                  <div class="delay-stat-value">-35%</div>
+                  <div class="delay-stat-label">复购率影响</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 物流跟踪信息更新滞后问题 -->
+        <div class="widget widget-2">
+          <div class="widget-header">
+            <div class="widget-title">
+              <div class="widget-icon">📱</div>
+              物流跟踪信息更新滞后
+            </div>
+            <div class="widget-controls">
+              <div class="widget-btn">⋮</div>
+              <div class="widget-btn">↗</div>
+            </div>
+          </div>
+          <div class="widget-description">
+            物流信息更新不及时，用户无法实时了解包裹状态。
+          </div>
+          <div class="widget-content">
+            <div class="process-chart">
+              <div class="process-labels">
+                <div class="process-label">发货</div>
+                <div class="process-label"></div>
+                <div class="process-label">运输中</div>
+                <div class="process-label"></div>
+                <div class="process-label">清关</div>
+                <div class="process-label"></div>
+                <div class="process-label">派送</div>
+              </div>
+              <div class="process-flow">
+                <div class="process-node">1</div>
+                <div class="process-line"></div>
+                <div class="process-node">2</div>
+                <div class="process-line"></div>
+                <div class="process-node">3</div>
+                <div class="process-line"></div>
+                <div class="process-node">4</div>
+                <div class="process-line"></div>
+                <div class="process-node">5</div>
+                <div class="process-line"></div>
+                <div class="process-node">6</div>
+              </div>
+              <div class="process-stats">
+                <div class="process-stat">
+                  <div class="process-stat-value">42%</div>
+                  <div class="process-stat-label">信息更新延迟率</div>
+                </div>
+                <div class="process-stat">
+                  <div class="process-stat-value">3-5天</div>
+                  <div class="process-stat-label">平均更新间隔</div>
+                </div>
+                <div class="process-stat">
+                  <div class="process-stat-value">68%</div>
+                  <div class="process-stat-label">用户查询率</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 包装问题 -->
+        <div class="widget widget-3">
+          <div class="widget-header">
+            <div class="widget-title">
+              <div class="widget-icon">📦</div>
+              包装问题
+            </div>
+            <div class="widget-controls">
+              <div class="widget-btn">⋮</div>
+              <div class="widget-btn">↗</div>
+            </div>
+          </div>
+          <div class="widget-description">
+            包装破损、保护不足等问题导致商品损坏。
+          </div>
+          <div class="widget-content">
+            <div class="cost-chart">
+              <div class="cost-map">
+                <div class="cost-region region-asia">包装破损</div>
+                <div class="cost-region region-europe">保护不足</div>
+                <div class="cost-region region-namerica">包装过度</div>
+                <div class="cost-region region-samerica">材料浪费</div>
+                <div class="cost-connector connector-1"></div>
+                <div class="cost-connector connector-2"></div>
+                <div class="cost-connector connector-3"></div>
+              </div>
+              <div class="cost-stats">
+                <div class="cost-stat">
+                  <div class="cost-stat-value">28%</div>
+                  <div class="cost-stat-label">包装破损率</div>
+                </div>
+                <div class="cost-stat">
+                  <div class="cost-stat-value">35%</div>
+                  <div class="cost-stat-label">保护不足率</div>
+                </div>
+                <div class="cost-stat">
+                  <div class="cost-stat-value">42%</div>
+                  <div class="cost-stat-label">包装过度率</div>
+                </div>
+                <div class="cost-stat">
+                  <div class="cost-stat-value">25%</div>
+                  <div class="cost-stat-label">材料浪费率</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 配送成本隐蔽问题 -->
+        <div class="widget widget-4">
+          <div class="widget-header">
+            <div class="widget-title">
+              <div class="widget-icon">💰</div>
+              配送成本隐蔽
+            </div>
+            <div class="widget-controls">
+              <div class="widget-btn">⋮</div>
+              <div class="widget-btn">↗</div>
+            </div>
+          </div>
+          <div class="widget-description">
+            配送费用计算不透明，额外费用收取不合理。
+          </div>
+          <div class="widget-content">
+            <div class="customs-chart">
+              <div class="customs-labels">
+                <div class="customs-label">基础运费</div>
+                <div class="customs-label">包装费</div>
+                <div class="customs-label">关税</div>
+                <div class="customs-label">附加费</div>
+                <div class="customs-label">其他</div>
+              </div>
+              <div class="customs-timeline">
+                <div class="customs-step active"></div>
+                <div class="customs-line active"></div>
+                <div class="customs-step active"></div>
+                <div class="customs-line active"></div>
+                <div class="customs-step"></div>
+                <div class="customs-line"></div>
+                <div class="customs-step"></div>
+                <div class="customs-line"></div>
+                <div class="customs-step"></div>
+              </div>
+              <div class="uncertainty-meter">
+                <div class="uncertainty-scale">
+                  <span>费用透明</span>
+                  <span>费用隐蔽</span>
+                </div>
+                <div class="uncertainty-marker"></div>
+              </div>
+              <div class="customs-stats">
+                <div class="customs-stat">
+                  <div class="customs-stat-value">45%</div>
+                  <div class="customs-stat-label">额外费用率</div>
+                </div>
+                <div class="customs-stat">
+                  <div class="customs-stat-value">38%</div>
+                  <div class="customs-stat-label">投诉率</div>
+                </div>
+                <div class="customs-stat">
+                  <div class="customs-stat-value">52%</div>
+                  <div class="customs-stat-label">费用不透明率</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div>物流监控系统数据更新时间: 2023-06-15 08:30:22</div>
+        <img src="images/temu_logo.svg" alt="Temu Logo" class="logo" />
+      </div>
+    </div>
+  </body>
+</html>

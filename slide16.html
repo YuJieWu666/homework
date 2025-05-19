@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Temu跨境电商平台系统设计 - 跨平台一致性保障</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary: #2a3f8a;
+        --secondary: #4ecdc4;
+        --light: #a7e8e2;
+        --dark: #1a4545;
+        --accent: rgb(251, 119, 1);
+        --text-light: #f8f9fa;
+        --text-dark: #343a40;
+        --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Noto Sans SC", sans-serif;
+        background-color: var(--text-light);
+        color: var(--text-dark);
+        overflow: hidden;
+        height: 100vh;
+        width: 100vw;
+      }
+
+      .slide-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+        background-color: white;
+      }
+
+      /* 标题区域 */
+      .header {
+        padding: 30px 50px 0;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 10px;
+        position: relative;
+        display: inline-block;
+        opacity: 0;
+        animation: fadeInDown 0.8s ease-out forwards;
+      }
+
+      .title::after {
+        content: "";
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background: var(--gradient);
+        border-radius: 2px;
+      }
+
+      .subtitle {
+        font-size: 1.1rem;
+        color: var(--text-dark);
+        opacity: 0.8;
+        margin-top: 15px;
+        letter-spacing: 1px;
+        opacity: 0;
+        animation: fadeIn 0.8s ease-out forwards 0.3s;
+      }
+
+      /* 大图区域 */
+      .hero-image-section {
+        width: 100%;
+        max-height: 40%;
+        padding: 0 80px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+        opacity: 0;
+        animation: fadeIn 1s ease-out forwards 0.5s;
+      }
+
+      .hero-image-container {
+        position: relative;
+        overflow: hidden;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        max-height: 100%;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+      }
+
+      .hero-image {
+        width: 100%;
+        max-height: 300px;
+        object-fit: cover;
+        object-position: center;
+        border-radius: 12px;
+      }
+
+      .hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          135deg,
+          rgba(44, 110, 110, 0.7),
+          rgba(78, 205, 196, 0.5)
+        );
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        padding: 20px;
+        text-align: center;
+      }
+
+      .overlay-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .overlay-desc {
+        font-size: 1rem;
+        line-height: 1.5;
+        max-width: 80%;
+      }
+
+      /* 功能卡片区域 */
+      .features-container {
+        display: flex;
+        justify-content: space-between;
+        padding: 30px 80px;
+        flex: 1;
+        gap: 25px;
+        transition: all 0.3s ease;
+      }
+
+      .feature-card {
+        flex: 1;
+        background: white;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        padding: 25px;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      .feature-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: var(--gradient);
+      }
+
+      .card-1 {
+        animation: fadeInUp 0.6s ease-out forwards 0.6s;
+      }
+
+      .card-2 {
+        animation: fadeInUp 0.6s ease-out forwards 0.8s;
+      }
+
+      .card-3 {
+        animation: fadeInUp 0.6s ease-out forwards 1s;
+      }
+
+      .card-4 {
+        animation: fadeInUp 0.6s ease-out forwards 1.2s;
+      }
+
+      .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .feature-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        background: var(--gradient);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        margin-bottom: 15px;
+      }
+
+      .feature-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--primary);
+        margin-bottom: 10px;
+      }
+
+      .feature-desc {
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: var(--text-dark);
+        margin-bottom: 15px;
+        flex: 1;
+      }
+
+      /* 特性标签 */
+      .feature-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: auto;
+      }
+
+      .feature-tag {
+        background-color: rgba(78, 205, 196, 0.1);
+        color: var(--primary);
+        font-size: 0.8rem;
+        padding: 4px 10px;
+        border-radius: 20px;
+        display: inline-block;
+      }
+
+      /* 设备连接线 */
+      .connections {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.1;
+      }
+
+      .connection-line {
+        position: absolute;
+        height: 2px;
+        background: var(--primary);
+      }
+
+      .line-1 {
+        width: 150px;
+        transform: rotate(35deg);
+        top: 40%;
+        left: 20%;
+      }
+
+      .line-2 {
+        width: 200px;
+        transform: rotate(-25deg);
+        top: 45%;
+        right: 20%;
+      }
+
+      .line-3 {
+        width: 180px;
+        transform: rotate(15deg);
+        bottom: 30%;
+        left: 30%;
+      }
+
+      /* 设备图标 */
+      .device-icons {
+        position: absolute;
+        bottom: 20px;
+        left: 0;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        gap: 50px;
+      }
+
+      .device-icon {
+        width: 40px;
+        height: 40px;
+        opacity: 0.2;
+      }
+
+      .device-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      /* 页脚 */
+      .footer {
+        padding: 20px 80px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .page-number {
+        font-size: 1rem;
+        color: var(--text-dark);
+        opacity: 0.7;
+      }
+
+      .logo {
+        height: 24px;
+      }
+
+      /* 动画效果 */
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadeInUp {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container">
+      <!-- 装饰连接线 -->
+      <div class="connections">
+        <div class="connection-line line-1"></div>
+        <div class="connection-line line-2"></div>
+        <div class="connection-line line-3"></div>
+      </div>
+
+      <!-- 标题区域 -->
+      <div class="header">
+        <h1 class="title">搜索与推荐算法优化</h1>
+        <p class="subtitle">SEARCH & RECOMMENDATION ALGORITHM OPTIMIZATION</p>
+      </div>
+
+      <!-- 大图区域 -->
+      <div class="hero-image-section">
+        <div class="hero-image-container">
+          <img
+            src=".\static\Multiple devices.jpg"
+            alt="智能搜索推荐"
+            class="hero-image"
+          />
+          <div class="hero-overlay">
+            <h2 class="overlay-title">智能搜索推荐系统</h2>
+            <p class="overlay-desc">
+              运用机器学习与自然语言处理技术，打造精准、智能的搜索推荐系统，为用户提供个性化的购物体验
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 功能卡片区域 -->
+      <div class="features-container">
+        <!-- 智能搜索优化 -->
+        <div class="feature-card card-1">
+          <div class="feature-icon">🔍</div>
+          <h3 class="feature-title">智能搜索优化</h3>
+          <p class="feature-desc">
+            基于机器学习算法优化搜索相关性，通过自然语言处理技术扩展同义词库。智能理解用户搜索意图，提供更精准的搜索结果。
+          </p>
+          <div class="feature-tags">
+            <span class="feature-tag">语义理解</span>
+            <span class="feature-tag">同义词扩展</span>
+            <span class="feature-tag">意图识别</span>
+          </div>
+        </div>
+
+        <!-- 个性化推荐引擎 -->
+        <div class="feature-card card-2">
+          <div class="feature-icon">🎯</div>
+          <h3 class="feature-title">个性化推荐引擎</h3>
+          <p class="feature-desc">
+            利用深度学习模型分析用户行为数据，构建精准用户画像。结合商品特征和用户偏好，提供个性化的商品推荐。
+          </p>
+          <div class="feature-tags">
+            <span class="feature-tag">用户画像</span>
+            <span class="feature-tag">行为分析</span>
+            <span class="feature-tag">深度学习</span>
+          </div>
+        </div>
+
+        <!-- 实时反馈优化 -->
+        <div class="feature-card card-3">
+          <div class="feature-icon">🔄</div>
+          <h3 class="feature-title">实时反馈优化</h3>
+          <p class="feature-desc">
+            持续收集用户搜索和浏览反馈，实时优化算法模型。通过A/B测试验证算法效果，不断提升推荐准确性和用户满意度。
+          </p>
+          <div class="feature-tags">
+            <span class="feature-tag">实时优化</span>
+            <span class="feature-tag">A/B测试</span>
+            <span class="feature-tag">反馈分析</span>
+          </div>
+        </div>
+
+        <!-- 多维度匹配 -->
+        <div class="feature-card card-4">
+          <div class="feature-icon">📊</div>
+          <h3 class="feature-title">多维度匹配</h3>
+          <p class="feature-desc">
+            综合考虑商品属性、用户偏好、场景特征等多维度因素，实现更精准的商品匹配。智能平衡相关性和多样性，提升推荐效果。
+          </p>
+          <div class="feature-tags">
+            <span class="feature-tag">多维度分析</span>
+            <span class="feature-tag">场景适配</span>
+            <span class="feature-tag">多样性平衡</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 设备图标 -->
+      <div class="device-icons">
+        <div class="device-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
+            />
+          </svg>
+        </div>
+        <div class="device-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"
+            />
+          </svg>
+        </div>
+        <div class="device-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14h-2V9h-2V7h4v10z"
+            />
+          </svg>
+        </div>
+        <div class="device-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-4h2v2h-2zm0-8h2v6h-2z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <!-- 页脚 -->
+      <div class="footer">
+        <span class="page-number">16 / 20</span>
+        <img class="logo" src="images/temu_logo.svg" alt="Temu Logo" />
+      </div>
+    </div>
+  </body>
+</html>

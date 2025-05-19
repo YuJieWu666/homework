@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Temu跨境电商平台系统设计 - 核心解决方案概述</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary: #2c6e6e;
+        --secondary: #4ecdc4;
+        --light: #a7e8e2;
+        --dark: #1a4545;
+        --text-light: #f8f9fa;
+        --text-dark: #343a40;
+        --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Noto Sans SC", sans-serif;
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        color: var(--text-dark);
+        overflow: hidden;
+        height: 100vh;
+        width: 100vw;
+      }
+
+      .slide-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* 标题区域 */
+      .header {
+        text-align: center;
+        padding: 30px 0;
+        position: relative;
+      }
+
+      .title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 10px;
+        position: relative;
+        display: inline-block;
+        opacity: 0;
+        animation: fadeInDown 0.8s ease-out forwards;
+      }
+
+      .title::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 120px;
+        height: 4px;
+        background: linear-gradient(
+          90deg,
+          var(--light),
+          var(--secondary),
+          var(--primary)
+        );
+        border-radius: 2px;
+      }
+
+      .subtitle {
+        font-size: 1.2rem;
+        color: var(--text-dark);
+        opacity: 0.8;
+        margin-top: 20px;
+        opacity: 0;
+        animation: fadeIn 0.8s ease-out forwards 0.3s;
+      }
+
+      /* 解决方案网格 */
+      .solutions-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-gap: 40px;
+        padding: 0 80px;
+        margin-top: 10px;
+        flex: 1;
+      }
+
+      .solution-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: var(--shadow);
+        padding: 30px;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      .solution-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 6px;
+        background: linear-gradient(90deg, var(--light), var(--secondary));
+      }
+
+      .card-1 {
+        animation: fadeInUp 0.6s ease-out forwards 0.2s;
+      }
+
+      .card-2 {
+        animation: fadeInUp 0.6s ease-out forwards 0.4s;
+      }
+
+      .card-3 {
+        animation: fadeInUp 0.6s ease-out forwards 0.6s;
+      }
+
+      .card-4 {
+        animation: fadeInUp 0.6s ease-out forwards 0.8s;
+      }
+
+      .solution-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+      }
+
+      .solution-icon {
+        background-color: rgba(78, 205, 196, 0.1);
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        font-size: 1.8rem;
+        color: var(--secondary);
+      }
+
+      .solution-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: var(--primary);
+        margin-bottom: 15px;
+      }
+
+      .solution-list {
+        list-style: none;
+      }
+
+      .solution-list li {
+        margin-bottom: 12px;
+        padding-left: 25px;
+        position: relative;
+        font-size: 1rem;
+        line-height: 1.4;
+      }
+
+      .solution-list li:before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        color: var(--secondary);
+        font-size: 1.2rem;
+        font-weight: bold;
+      }
+
+      /* 装饰元素 */
+      .decoration {
+        position: absolute;
+        opacity: 0.1;
+        z-index: 0;
+      }
+
+      .circle-1 {
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        background: var(--secondary);
+        top: -100px;
+        right: -100px;
+      }
+
+      .circle-2 {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        background: var(--primary);
+        bottom: -50px;
+        left: -50px;
+      }
+
+      .dots {
+        position: absolute;
+        width: 200px;
+        height: 100px;
+        background-image: radial-gradient(var(--primary) 1px, transparent 1px);
+        background-size: 15px 15px;
+        opacity: 0.3;
+        z-index: 0;
+      }
+
+      .dots-1 {
+        top: 20%;
+        left: 10%;
+      }
+
+      .dots-2 {
+        bottom: 20%;
+        right: 10%;
+      }
+
+      /* 页脚 */
+      .footer {
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .page-number {
+        font-size: 1rem;
+        color: var(--text-dark);
+        opacity: 0.7;
+      }
+
+      .logo {
+        height: 30px;
+      }
+
+      /* 动画效果 */
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadeInUp {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container">
+      <!-- 装饰元素 -->
+      <div class="decoration circle-1"></div>
+      <div class="decoration circle-2"></div>
+      <div class="decoration dots dots-1"></div>
+      <div class="decoration dots dots-2"></div>
+
+      <!-- 标题区域 -->
+      <div class="header">
+        <h1 class="title">核心解决方案概述</h1>
+        <p class="subtitle">CORE SOLUTIONS OVERVIEW</p>
+      </div>
+
+      <!-- 解决方案网格 -->
+      <div class="solutions-grid">
+        <!-- 多语言多货币支持 -->
+        <div class="solution-card card-1">
+          <div class="solution-icon">🌐</div>
+          <h2 class="solution-title">多语言多货币支持</h2>
+          <ul class="solution-list">
+            <li>提供全球化的多语言界面，覆盖主要国家和地区</li>
+            <li>支持自动语言检测与一键切换功能</li>
+            <li>集成多种货币支付方式，实时汇率转换</li>
+            <li>区域化内容适配，提升本地用户体验</li>
+          </ul>
+        </div>
+
+        <!-- 智能推荐引擎 -->
+        <div class="solution-card card-2">
+          <div class="solution-icon">🧠</div>
+          <h2 class="solution-title">智能推荐引擎</h2>
+          <ul class="solution-list">
+            <li>结合用户兴趣和行为数据进行个性化商品推荐</li>
+            <li>基于浏览历史和购买记录构建用户画像</li>
+            <li>利用相似用户行为分析，提供多样化推荐</li>
+            <li>支持季节性、场景化的智能推荐策略</li>
+          </ul>
+        </div>
+
+        <!-- 物流管理系统优化 -->
+        <div class="solution-card card-3">
+          <div class="solution-icon">🚚</div>
+          <h2 class="solution-title">物流管理系统优化</h2>
+          <ul class="solution-list">
+            <li>全球物流路径智能规划与优化</li>
+            <li>多级仓储网络协同，提高配送效率</li>
+            <li>实时物流跟踪与状态更新功能</li>
+            <li>自适应物流方案选择，平衡成本与时效</li>
+          </ul>
+        </div>
+
+        <!-- 标准化流程模型 -->
+        <div class="solution-card card-4">
+          <div class="solution-icon">📊</div>
+          <h2 class="solution-title">标准化流程模型</h2>
+          <ul class="solution-list">
+            <li>建立统一的跨平台设计规范与标准</li>
+            <li>核心功能模块同步开发与更新</li>
+            <li>统一数据结构与接口设计规范</li>
+            <li>自动化测试与质量保障体系</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 页脚 -->
+      <div class="footer">
+        <span class="page-number">12 / 20</span>
+        <img class="logo" src="images/temu_logo.svg" alt="Temu Logo" />
+      </div>
+    </div>
+  </body>
+</html>

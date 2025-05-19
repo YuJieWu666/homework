@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Temu跨境电商平台系统设计 - 系统管理员使用场景</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --terminal-bg: #0c0c0c;
+        --terminal-text: #33ff33;
+        --terminal-glow: rgba(51, 255, 51, 0.4);
+        --terminal-dim: rgba(51, 255, 51, 0.7);
+        --terminal-border: #1a1a1a;
+        --section1: #ff3355;
+        --section2: #33ccff;
+        --section3: #ffcc33;
+        --section4: #33ffcc;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "JetBrains Mono", "Noto Sans SC", monospace, sans-serif;
+        background: var(--terminal-bg);
+        color: var(--terminal-text);
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+        position: relative;
+      }
+
+      /* 矩阵代码雨效果 */
+      canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+      }
+
+      .terminal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          to bottom,
+          rgba(12, 12, 12, 0.7) 0%,
+          rgba(12, 12, 12, 0.9) 20%,
+          rgba(12, 12, 12, 0.95) 40%
+        );
+        z-index: 2;
+      }
+
+      .terminal-container {
+        position: relative;
+        z-index: 10;
+        width: 100%;
+        height: 100%;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* 终端标题栏 */
+      .terminal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 16px;
+        border-bottom: 1px solid var(--terminal-border);
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(51, 255, 51, 0.1);
+      }
+
+      .terminal-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        text-shadow: 0 0 10px var(--terminal-glow);
+        animation: terminalPulse 4s infinite;
+      }
+
+      @keyframes terminalPulse {
+        0%,
+        100% {
+          text-shadow: 0 0 10px var(--terminal-glow);
+        }
+        50% {
+          text-shadow: 0 0 20px var(--terminal-glow),
+            0 0 30px var(--terminal-glow);
+        }
+      }
+
+      .terminal-controls {
+        display: flex;
+        gap: 10px;
+      }
+
+      .terminal-button {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .terminal-button.close {
+        background-color: #ff5f56;
+      }
+
+      .terminal-button.minimize {
+        background-color: #ffbd2e;
+      }
+
+      .terminal-button.maximize {
+        background-color: #27c93f;
+      }
+
+      /* 主标题 */
+      .main-title {
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 2.2rem;
+        font-weight: 700;
+        letter-spacing: 2px;
+        position: relative;
+        overflow: hidden;
+        animation: typewriter 3s steps(40) 0.5s 1 normal both;
+      }
+
+      @keyframes typewriter {
+        from {
+          width: 0;
+        }
+        to {
+          width: 100%;
+        }
+      }
+
+      /* 终端内容区 */
+      .terminal-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      /* 命令行输入效果 */
+      .command-line {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 1rem;
+        margin-bottom: 15px;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.5s forwards;
+      }
+
+      .command-line.line-1 {
+        animation-delay: 1s;
+      }
+
+      .command-line.line-2 {
+        animation-delay: 2s;
+      }
+
+      .command-line.line-3 {
+        animation-delay: 3s;
+      }
+
+      .command-line.line-4 {
+        animation-delay: 4s;
+      }
+
+      @keyframes fadeInUp {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .prompt {
+        color: var(--terminal-text);
+        margin-right: 10px;
+      }
+
+      .command {
+        color: white;
+      }
+
+      /* 系统管理员模块部分 */
+      .admin-modules {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        gap: 20px;
+        margin-top: 20px;
+        flex: 1;
+      }
+
+      .module {
+        border: 1px solid var(--terminal-dim);
+        border-radius: 5px;
+        padding: 16px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 0 15px rgba(51, 255, 51, 0.1);
+        animation: moduleAppear 0.8s forwards;
+        opacity: 0;
+        transform: scale(0.9);
+      }
+
+      @keyframes moduleAppear {
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .module-1 {
+        animation-delay: 5s;
+        border-color: var(--section1);
+      }
+
+      .module-2 {
+        animation-delay: 5.3s;
+        border-color: var(--section2);
+      }
+
+      .module-3 {
+        animation-delay: 5.6s;
+        border-color: var(--section3);
+      }
+
+      .module-4 {
+        animation-delay: 5.9s;
+        border-color: var(--section4);
+      }
+
+      .module-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        border-bottom: 1px dashed rgba(51, 255, 51, 0.3);
+        padding-bottom: 8px;
+      }
+
+      .module-icon {
+        width: 24px;
+        height: 24px;
+        margin-right: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .module-icon svg {
+        fill: var(--terminal-text);
+        width: 20px;
+        height: 20px;
+      }
+
+      .module-1 .module-icon svg {
+        fill: var(--section1);
+      }
+
+      .module-2 .module-icon svg {
+        fill: var(--section2);
+      }
+
+      .module-3 .module-icon svg {
+        fill: var(--section3);
+      }
+
+      .module-4 .module-icon svg {
+        fill: var(--section4);
+      }
+
+      .module-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
+
+      .module-1 .module-title {
+        color: var(--section1);
+      }
+
+      .module-2 .module-title {
+        color: var(--section2);
+      }
+
+      .module-3 .module-title {
+        color: var(--section3);
+      }
+
+      .module-4 .module-title {
+        color: var(--section4);
+      }
+
+      .feature-list {
+        list-style: none;
+      }
+
+      .feature-item {
+        margin-bottom: 10px;
+        padding-left: 20px;
+        position: relative;
+        font-size: 0.95rem;
+        line-height: 1.4;
+      }
+
+      .feature-item::before {
+        content: ">";
+        position: absolute;
+        left: 0;
+        animation: blinkCursor 1s infinite;
+      }
+
+      @keyframes blinkCursor {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0;
+        }
+      }
+
+      /* 模块视觉区域 */
+      .module-visual {
+        margin-top: 15px;
+        height: 90px;
+        border: 1px dashed rgba(51, 255, 51, 0.2);
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* 系统维护视觉效果 */
+      .code-scan {
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.7rem;
+        line-height: 1.2;
+        color: var(--section1);
+      }
+
+      .scan-line {
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        background: var(--section1);
+        top: 0;
+        left: 0;
+        box-shadow: 0 0 10px var(--section1);
+        animation: scanDown 3s linear infinite;
+      }
+
+      @keyframes scanDown {
+        0% {
+          top: 0;
+        }
+        100% {
+          top: 100%;
+        }
+      }
+
+      .code-content {
+        column-count: 3;
+        column-gap: 5px;
+        padding: 5px;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      /* 用户管理视觉效果 */
+      .user-terminal {
+        height: 100%;
+        padding: 5px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.7rem;
+        line-height: 1.2;
+        color: var(--section2);
+        overflow: hidden;
+      }
+
+      .terminal-line {
+        white-space: nowrap;
+        animation: typeLine 0.1s steps(1) infinite;
+        margin: 2px 0;
+      }
+
+      @keyframes typeLine {
+        0%,
+        100% {
+          border-right: 2px solid var(--section2);
+        }
+        50% {
+          border-right: 2px solid transparent;
+        }
+      }
+
+      /* 数据分析视觉效果 */
+      .data-viz {
+        height: 100%;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+      }
+
+      .stat-column {
+        height: 80%;
+        width: 8%;
+        background: rgba(255, 204, 51, 0.2);
+        position: relative;
+      }
+
+      .stat-fill {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: var(--section3);
+        animation: statGrow 2.5s ease-out forwards;
+      }
+
+      @keyframes statGrow {
+        from {
+          height: 0;
+        }
+        to {
+          height: var(--stat-height);
+        }
+      }
+
+      /* 物流网络视觉效果 */
+      .network-viz {
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        background: rgba(51, 255, 204, 0.05);
+      }
+
+      .network-node {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        background: var(--section4);
+        border-radius: 50%;
+        box-shadow: 0 0 5px var(--section4);
+      }
+
+      .network-line {
+        position: absolute;
+        height: 1px;
+        background: var(--section4);
+        transform-origin: left;
+        animation: lineDraw 1.5s forwards;
+      }
+
+      @keyframes lineDraw {
+        from {
+          transform: scaleX(0);
+        }
+        to {
+          transform: scaleX(1);
+        }
+      }
+
+      .data-packet {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        background: white;
+        border-radius: 50%;
+        z-index: 2;
+        animation: movePacket 3s linear infinite;
+      }
+
+      @keyframes movePacket {
+        0% {
+          transform: translateX(0) translateY(0);
+          opacity: 1;
+        }
+        90% {
+          opacity: 1;
+        }
+        100% {
+          transform: translateX(var(--move-x)) translateY(var(--move-y));
+          opacity: 0;
+        }
+      }
+
+      /* 页码 */
+      .page-number {
+        position: absolute;
+        bottom: 15px;
+        right: 15px;
+        font-size: 0.8rem;
+        opacity: 0.6;
+        z-index: 10;
+      }
+
+      /* 响应式调整 */
+      @media (max-width: 1200px) {
+        .admin-modules {
+          gap: 15px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .admin-modules {
+          grid-template-columns: 1fr;
+          height: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="matrixCanvas"></canvas>
+    <div class="terminal-overlay"></div>
+
+    <div class="terminal-container">
+      <div class="terminal-header">
+        <div class="terminal-controls">
+          <div class="terminal-button close"></div>
+          <div class="terminal-button minimize"></div>
+          <div class="terminal-button maximize"></div>
+        </div>
+        <div class="terminal-title">系统管理员使用场景</div>
+        <div></div>
+      </div>
+
+      <div class="terminal-content">
+        <h1 class="main-title">系统管理员使用场景</h1>
+
+        <div class="command-line line-1">
+          <span class="prompt">admin@temu:~$</span>
+          <span class="command"
+            >sudo access --system-control --privilege=root</span
+          >
+        </div>
+        <div class="command-line line-2">
+          <span class="prompt">[系统]</span>
+          <span class="command">权限验证成功...正在加载系统管理模块</span>
+        </div>
+        <div class="command-line line-3">
+          <span class="prompt">[系统]</span>
+          <span class="command">初始化管理员控制台...模块加载完成</span>
+        </div>
+        <div class="command-line line-4">
+          <span class="prompt">root@temu:/system#</span>
+          <span class="command">display --modules --visualization=true</span>
+        </div>
+
+        <div class="admin-modules">
+          <!-- 系统维护模块 -->
+          <div class="module module-1">
+            <div class="module-header">
+              <div class="module-icon">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"
+                  />
+                </svg>
+              </div>
+              <div class="module-title">系统维护</div>
+            </div>
+            <ul class="feature-list">
+              <li class="feature-item">监控系统运行状态</li>
+              <li class="feature-item">处理异常事件</li>
+            </ul>
+            <div class="module-visual">
+              <div class="code-scan">
+                <div class="scan-line"></div>
+                <div class="code-content" id="code-content-1"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 用户管理模块 -->
+          <div class="module module-2">
+            <div class="module-header">
+              <div class="module-icon">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"
+                  />
+                </svg>
+              </div>
+              <div class="module-title">用户管理</div>
+            </div>
+            <ul class="feature-list">
+              <li class="feature-item">审核商家资质</li>
+              <li class="feature-item">管理用户账号</li>
+            </ul>
+            <div class="module-visual">
+              <div class="user-terminal" id="user-terminal"></div>
+            </div>
+          </div>
+
+          <!-- 数据分析模块 -->
+          <div class="module module-3">
+            <div class="module-header">
+              <div class="module-icon">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4 14H7v-2h8v2zm0-4H7v-2h8v2zm0-4H7V7h8v2zm4 8h-2V7h2v10z"
+                  />
+                </svg>
+              </div>
+              <div class="module-title">数据分析</div>
+            </div>
+            <ul class="feature-list">
+              <li class="feature-item">生成经营报表</li>
+              <li class="feature-item">评估绩效</li>
+            </ul>
+            <div class="module-visual">
+              <div class="data-viz">
+                <div class="stat-column">
+                  <div class="stat-fill" style="--stat-height: 75%"></div>
+                </div>
+                <div class="stat-column">
+                  <div class="stat-fill" style="--stat-height: 45%"></div>
+                </div>
+                <div class="stat-column">
+                  <div class="stat-fill" style="--stat-height: 90%"></div>
+                </div>
+                <div class="stat-column">
+                  <div class="stat-fill" style="--stat-height: 60%"></div>
+                </div>
+                <div class="stat-column">
+                  <div class="stat-fill" style="--stat-height: 80%"></div>
+                </div>
+                <div class="stat-column">
+                  <div class="stat-fill" style="--stat-height: 40%"></div>
+                </div>
+                <div class="stat-column">
+                  <div class="stat-fill" style="--stat-height: 65%"></div>
+                </div>
+                <div class="stat-column">
+                  <div class="stat-fill" style="--stat-height: 85%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 物流优化模块 -->
+          <div class="module module-4">
+            <div class="module-header">
+              <div class="module-icon">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"
+                  />
+                </svg>
+              </div>
+              <div class="module-title">物流优化</div>
+            </div>
+            <ul class="feature-list">
+              <li class="feature-item">路径规划</li>
+              <li class="feature-item">异常处理追踪</li>
+              <li class="feature-item">合作伙伴管理</li>
+            </ul>
+            <div class="module-visual">
+              <div class="network-viz" id="network-viz"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-number">7 / 20</div>
+    </div>
+
+    <script>
+      // 矩阵代码雨效果
+      const canvas = document.getElementById("matrixCanvas");
+      const ctx = canvas.getContext("2d");
+
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      // 调整canvas大小以适应窗口
+      window.addEventListener("resize", function () {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      });
+
+      // 中文字符
+      const chars =
+        "田由甲申甴电甶男甸甹町画甼甽甾甿畀畁畂畃畄畅畆畇畈畉畊畋界畍畎畏畐畑".split(
+          ""
+        );
+
+      const fontSize = 14;
+      const columns = Math.floor(canvas.width / fontSize);
+
+      // 每列的当前位置
+      const drops = [];
+      for (let i = 0; i < columns; i++) {
+        drops[i] = Math.floor((Math.random() * -canvas.height) / fontSize);
+      }
+
+      // 绘制代码雨
+      function draw() {
+        // 设置半透明背景，形成渐隐效果
+        ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = "#33ff33";
+        ctx.font = fontSize + "px monospace";
+
+        for (let i = 0; i < drops.length; i++) {
+          // 随机选择一个字符
+          const text = chars[Math.floor(Math.random() * chars.length)];
+
+          // 绘制字符
+          const x = i * fontSize;
+          const y = drops[i] * fontSize;
+
+          if (y > 0 && y < canvas.height) {
+            ctx.fillText(text, x, y);
+          }
+
+          // 更新位置
+          drops[i]++;
+
+          // 重置到顶部，随机位置
+          if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+            drops[i] = Math.floor(Math.random() * -10);
+          }
+        }
+      }
+
+      // 启动动画
+      setInterval(draw, 40);
+
+      // 随机代码生成
+      function generateRandomCode() {
+        const codeBits = [
+          "function monitor() {",
+          "  const status = checkSystemHealth();",
+          "  if(status.critical) {",
+          "    alert('系统异常');",
+          "  }",
+          "  return status;",
+          "}",
+          "class SystemMonitor {",
+          "  constructor() { this.active = true; }",
+          "  start() { /* 启动监控 */ }",
+          "  stop() { /* 停止监控 */ }",
+          "}",
+          "const checkLogs = async () => {",
+          "  const logs = await fetch('/api/logs');",
+          "  return logs.json();",
+          "};",
+          "while(true) {",
+          "  monitor();",
+          "  await sleep(1000);",
+          "}",
+        ];
+
+        const codeContainer = document.getElementById("code-content-1");
+        codeContainer.innerHTML = "";
+
+        // 生成3列随机代码
+        for (let i = 0; i < 15; i++) {
+          const randomIndex = Math.floor(Math.random() * codeBits.length);
+          const codeLine = document.createElement("div");
+          codeLine.textContent = codeBits[randomIndex];
+          codeContainer.appendChild(codeLine);
+        }
+      }
+
+      // 生成用户终端内容
+      function generateUserTerminal() {
+        const userActions = [
+          "> 用户 merchant123 申请审核中...",
+          "> 验证资质文件: business_license.pdf",
+          "> 核对税务登记编号: 91110123X",
+          "> 商家身份验证: 通过",
+          "> 设置账户权限: 已授权",
+          "> 账户状态更新: 活跃",
+          "> 用户 customer456 登录异常",
+          "> 检查IP地址: 192.168.1.1",
+          "> 安全协议: 正在验证...",
+        ];
+
+        const terminal = document.getElementById("user-terminal");
+        terminal.innerHTML = "";
+
+        // 添加终端行
+        for (let i = 0; i < 6; i++) {
+          const randomIndex = Math.floor(Math.random() * userActions.length);
+          const terminalLine = document.createElement("div");
+          terminalLine.className = "terminal-line";
+          terminalLine.textContent = userActions[randomIndex];
+          terminal.appendChild(terminalLine);
+        }
+      }
+
+      // 生成网络可视化
+      function generateNetworkViz() {
+        const networkViz = document.getElementById("network-viz");
+        networkViz.innerHTML = "";
+
+        // 创建节点
+        const nodePositions = [
+          { x: "10%", y: "20%" },
+          { x: "30%", y: "70%" },
+          { x: "50%", y: "30%" },
+          { x: "70%", y: "60%" },
+          { x: "90%", y: "40%" },
+        ];
+
+        // 添加节点
+        nodePositions.forEach((pos, index) => {
+          const node = document.createElement("div");
+          node.className = "network-node";
+          node.style.left = pos.x;
+          node.style.top = pos.y;
+          node.id = `node-${index}`;
+          networkViz.appendChild(node);
+        });
+
+        // 添加连线
+        const connections = [
+          { from: 0, to: 1 },
+          { from: 0, to: 2 },
+          { from: 1, to: 3 },
+          { from: 2, to: 3 },
+          { from: 2, to: 4 },
+          { from: 3, to: 4 },
+        ];
+
+        // 创建连线
+        connections.forEach((conn, index) => {
+          setTimeout(() => {
+            const fromNode = document.getElementById(`node-${conn.from}`);
+            const toNode = document.getElementById(`node-${conn.to}`);
+
+            if (fromNode && toNode) {
+              const fromRect = fromNode.getBoundingClientRect();
+              const toRect = toNode.getBoundingClientRect();
+              const networkRect = networkViz.getBoundingClientRect();
+
+              // 计算相对位置
+              const fromX =
+                fromRect.left - networkRect.left + fromNode.offsetWidth / 2;
+              const fromY =
+                fromRect.top - networkRect.top + fromNode.offsetHeight / 2;
+              const toX =
+                toRect.left - networkRect.left + toNode.offsetWidth / 2;
+              const toY =
+                toRect.top - networkRect.top + toNode.offsetHeight / 2;
+
+              // 计算线长度和角度
+              const length = Math.sqrt(
+                Math.pow(toX - fromX, 2) + Math.pow(toY - fromY, 2)
+              );
+              const angle =
+                (Math.atan2(toY - fromY, toX - fromX) * 180) / Math.PI;
+
+              // 创建线
+              const line = document.createElement("div");
+              line.className = "network-line";
+              line.style.width = `${length}px`;
+              line.style.left = `${fromX}px`;
+              line.style.top = `${fromY}px`;
+              line.style.transform = `rotate(${angle}deg)`;
+
+              networkViz.appendChild(line);
+
+              // 创建数据包
+              const packet = document.createElement("div");
+              packet.className = "data-packet";
+              packet.style.left = `${fromX}px`;
+              packet.style.top = `${fromY}px`;
+              packet.style.setProperty("--move-x", `${toX - fromX}px`);
+              packet.style.setProperty("--move-y", `${toY - fromY}px`);
+
+              networkViz.appendChild(packet);
+            }
+          }, index * 300);
+        });
+      }
+
+      // 初始化页面内容
+      document.addEventListener("DOMContentLoaded", function () {
+        // 加载代码内容
+        generateRandomCode();
+        setInterval(generateRandomCode, 5000); // 每5秒刷新代码
+
+        // 加载用户终端
+        generateUserTerminal();
+        setInterval(generateUserTerminal, 3000); // 每3秒刷新用户操作
+
+        // 加载网络可视化
+        setTimeout(generateNetworkViz, 6000); // 在模块完全显示后加载网络可视化
+      });
+    </script>
+  </body>
+</html>

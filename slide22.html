@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Temu跨境电商平台系统设计 - 总结与展望</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary: #313866;
+        --primary-light: #4254a3;
+        --secondary: #504099;
+        --accent: #ff6b6b;
+        --accent-light: #ff9e9e;
+        --light: #dadaf7;
+        --lighter: #f5f5ff;
+        --dark: #1e224c;
+        --text-light: #f8f9fa;
+        --text-dark: #343a40;
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Noto Sans SC", sans-serif;
+        background-color: var(--lighter);
+        color: var(--text-dark);
+        overflow: hidden;
+        height: 100vh;
+        width: 100vw;
+      }
+
+      .slide-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* 标题区域 */
+      .header {
+        padding: 30px 60px 10px;
+        text-align: center;
+        position: relative;
+        z-index: 3;
+      }
+
+      .title {
+        font-size: 2.6rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 15px;
+        position: relative;
+        display: inline-block;
+        opacity: 0;
+        animation: fadeInDown 0.8s ease-out forwards;
+      }
+
+      .title::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 120px;
+        height: 4px;
+        background: var(--gradient);
+        border-radius: 2px;
+      }
+
+      .subtitle {
+        font-size: 1.2rem;
+        color: var(--text-dark);
+        opacity: 0.8;
+        opacity: 0;
+        animation: fadeIn 0.8s ease-out forwards 0.3s;
+      }
+
+      /* 主要内容区域 */
+      .content-section {
+        flex: 1;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        z-index: 2;
+      }
+
+      /* 轮盘容器 */
+      .wheel-container {
+        position: relative;
+        width: 580px;
+        height: 580px;
+        margin: 0 auto;
+      }
+
+      /* 轮盘中心 */
+      .wheel-center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 120px;
+        height: 120px;
+        background: var(--gradient);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.8rem;
+        font-weight: 700;
+        box-shadow: 0 5px 15px rgba(49, 56, 102, 0.3);
+        z-index: 10;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .wheel-center:hover {
+        transform: translate(-50%, -50%) scale(1.05);
+        box-shadow: 0 8px 25px rgba(49, 56, 102, 0.4);
+      }
+
+      /* 轮盘 */
+      .wheel {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        transition: transform 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+        transform: rotate(0deg);
+      }
+
+      /* 轮盘扇区 */
+      .wheel-segment {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 50% 100%);
+        transform-origin: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .wheel-segment:hover {
+        filter: brightness(1.1);
+      }
+
+      .segment-1 {
+        background: linear-gradient(135deg, #313866, #3d468a);
+        transform: rotate(0deg);
+      }
+
+      .segment-2 {
+        background: linear-gradient(135deg, #3d468a, #4254a3);
+        transform: rotate(72deg);
+      }
+
+      .segment-3 {
+        background: linear-gradient(135deg, #4254a3, #504099);
+        transform: rotate(144deg);
+      }
+
+      .segment-4 {
+        background: linear-gradient(135deg, #504099, #634bad);
+        transform: rotate(216deg);
+      }
+
+      .segment-5 {
+        background: linear-gradient(135deg, #634bad, #313866);
+        transform: rotate(288deg);
+      }
+
+      /* 轮盘图标 */
+      .segment-icon {
+        display: none;
+      }
+
+      /* 内容显示区域 */
+      .content-display {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: calc(100% - 700px);
+        max-width: 500px;
+        min-height: 400px;
+        transform: translateY(-50%);
+        background: white;
+        border-radius: 20px;
+        box-shadow: var(--shadow);
+        padding: 40px;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.5s ease;
+        z-index: 8;
+      }
+
+      .content-display.active {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .content-display.left {
+        left: 120px;
+      }
+
+      .content-display.right {
+        left: calc(100% - 120px);
+        transform: translate(-100%, -50%);
+      }
+
+      .content-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 3px solid var(--accent);
+        display: inline-block;
+      }
+
+      .content-list {
+        list-style: none;
+        margin-top: 20px;
+      }
+
+      .content-list li {
+        position: relative;
+        padding-left: 28px;
+        margin-bottom: 15px;
+        font-size: 1rem;
+        line-height: 1.5;
+      }
+
+      .content-list li::before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 20px;
+        height: 20px;
+        background-color: rgba(49, 56, 102, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        color: var(--primary);
+      }
+
+      /* 控制按钮 */
+      .controls {
+        position: absolute;
+        bottom: 40px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 20px;
+        z-index: 10;
+      }
+
+      .control-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: white;
+        border: none;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        font-size: 1.2rem;
+        color: var(--primary);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .control-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        background: var(--primary-light);
+        color: white;
+      }
+
+      /* 页脚 */
+      .footer {
+        padding: 20px 60px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 3;
+      }
+
+      .page-number {
+        font-size: 1rem;
+        color: var(--text-dark);
+        opacity: 0.7;
+      }
+
+      .logo {
+        height: 24px;
+      }
+
+      /* 装饰元素 */
+      .decoration {
+        position: absolute;
+        z-index: 1;
+        pointer-events: none;
+      }
+
+      .circle {
+        border-radius: 50%;
+      }
+
+      .circle-1 {
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(
+          circle at center,
+          rgba(218, 218, 247, 0.6),
+          rgba(218, 218, 247, 0)
+        );
+        top: -300px;
+        right: -200px;
+      }
+
+      .circle-2 {
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(
+          circle at center,
+          rgba(218, 218, 247, 0.6),
+          rgba(218, 218, 247, 0)
+        );
+        bottom: -200px;
+        left: -200px;
+      }
+
+      .floating-shape {
+        position: absolute;
+        opacity: 0.6;
+        filter: blur(2px);
+      }
+
+      .shape-1 {
+        width: 80px;
+        height: 80px;
+        background-color: rgba(49, 56, 102, 0.05);
+        border-radius: 24px;
+        top: 15%;
+        left: 10%;
+        transform: rotate(15deg);
+        animation: float 10s ease-in-out infinite;
+      }
+
+      .shape-2 {
+        width: 60px;
+        height: 60px;
+        background-color: rgba(80, 64, 153, 0.05);
+        border-radius: 30px 0 30px 0;
+        top: 70%;
+        right: 15%;
+        transform: rotate(-10deg);
+        animation: float 8s ease-in-out infinite 1s;
+      }
+
+      .shape-3 {
+        width: 40px;
+        height: 40px;
+        background-color: rgba(255, 107, 107, 0.05);
+        border-radius: 50%;
+        bottom: 20%;
+        left: 20%;
+        animation: float 12s ease-in-out infinite 2s;
+      }
+
+      /* 动画 */
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes float {
+        0% {
+          transform: translateY(0) rotate(var(--rotation, 0deg));
+        }
+        50% {
+          transform: translateY(-15px) rotate(var(--rotation, 0deg));
+        }
+        100% {
+          transform: translateY(0) rotate(var(--rotation, 0deg));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container">
+      <!-- 装饰元素 -->
+      <div class="circle circle-1 decoration"></div>
+      <div class="circle circle-2 decoration"></div>
+      <div class="floating-shape shape-1" style="--rotation: 15deg"></div>
+      <div class="floating-shape shape-2" style="--rotation: -10deg"></div>
+      <div class="floating-shape shape-3"></div>
+
+      <!-- 标题区域 -->
+      <div class="header">
+        <h1 class="title">总结与展望</h1>
+        <p class="subtitle">SUMMARY AND FUTURE OUTLOOK</p>
+      </div>
+
+      <!-- 主要内容区域 -->
+      <div class="content-section">
+        <!-- 轮盘容器 -->
+        <div class="wheel-container">
+          <!-- 轮盘中心 -->
+          <div class="wheel-center" id="wheel-center">总结</div>
+
+          <!-- 轮盘 -->
+          <div class="wheel" id="wheel">
+            <!-- 轮盘扇区 -->
+            <div class="wheel-segment segment-1" data-index="0">
+              <div class="segment-icon">🌟</div>
+            </div>
+            <div class="wheel-segment segment-2" data-index="1">
+              <div class="segment-icon">🚀</div>
+            </div>
+            <div class="wheel-segment segment-3" data-index="2">
+              <div class="segment-icon">🔍</div>
+            </div>
+            <div class="wheel-segment segment-4" data-index="3">
+              <div class="segment-icon">🌐</div>
+            </div>
+            <div class="wheel-segment segment-5" data-index="4">
+              <div class="segment-icon">🙏</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 内容显示区域 -->
+        <div class="content-display left" id="content-0">
+          <h3 class="content-title">平台核心价值</h3>
+          <p>
+            Temu跨境电商平台通过持续创新和技术升级，构建了一个连接全球商家与消费者的高效生态系统。
+          </p>
+          <ul class="content-list">
+            <li>优化用户体验，建立高度个性化的购物流程，提升转化率</li>
+            <li>提升物流效率，降低跨国配送时间与成本，增强用户满意度</li>
+            <li>加强个性化推荐能力，提高用户发现感兴趣产品的概率</li>
+            <li>满足全球用户多样化需求，应对不同地区的文化与政策差异</li>
+          </ul>
+        </div>
+
+        <div class="content-display right" id="content-1">
+          <h3 class="content-title">未来发展方向</h3>
+          <ul class="content-list">
+            <li>
+              引入前沿AI技术，提升推荐精度和物流路径预测能力，降低运营成本
+            </li>
+            <li>加强社交互动功能，通过UGC内容增强用户粘性与社区活跃度</li>
+            <li>持续优化跨平台一致性，确保用户在各种设备间享受无缝体验</li>
+            <li>拓展新兴市场，适应不同地区的消费习惯与支付方式需求</li>
+            <li>开发更智能的商家工具，帮助中小卖家提升全球化运营效率</li>
+          </ul>
+        </div>
+
+        <div class="content-display left" id="content-2">
+          <h3 class="content-title">技术成就</h3>
+          <ul class="content-list">
+            <li>构建可扩展的微服务架构，支持系统的高并发与灵活扩展</li>
+            <li>开发智能推荐算法，通过深度学习实现商品与用户匹配</li>
+            <li>实现跨国物流跟踪系统，提供实时配送状态与异常预警</li>
+            <li>设计多语言与多货币支持框架，自动适配全球市场差异</li>
+            <li>建立大数据分析平台，为商业决策提供数据支持</li>
+          </ul>
+        </div>
+
+        <div class="content-display right" id="content-3">
+          <h3 class="content-title">全球化战略</h3>
+          <ul class="content-list">
+            <li>针对不同地区市场设计本地化运营策略，尊重文化差异</li>
+            <li>建立全球物流合作网络，优化跨境配送时效与成本</li>
+            <li>开发区域性支付方案，适配当地主流支付方式与消费习惯</li>
+            <li>实施多层次合规策略，符合各国进出口与电商监管法规</li>
+            <li>推动供应链全球化布局，减少地缘政治风险对业务影响</li>
+          </ul>
+        </div>
+
+        <div class="content-display left" id="content-4">
+          <h3 class="content-title">致谢</h3>
+          <p>感谢所有为本报告做出贡献的团队成员。</p>
+          <p style="margin-top: 15px">特别感谢：</p>
+          <ul class="content-list">
+            <li>张舒颜</li>
+            <li>吴宇杰</li>
+            <li>张娇</li>
+          </ul>
+        </div>
+
+        <!-- 控制按钮 -->
+        <div class="controls">
+          <button class="control-btn" id="prev-btn">◀</button>
+          <button class="control-btn" id="next-btn">▶</button>
+        </div>
+      </div>
+
+      <!-- 页脚 -->
+      <div class="footer">
+        <span class="page-number">22 / 22</span>
+        <img class="logo" src="images/temu_logo.svg" alt="Temu Logo" />
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const wheel = document.getElementById("wheel");
+        const wheelCenter = document.getElementById("wheel-center");
+        const segments = document.querySelectorAll(".wheel-segment");
+        const contents = document.querySelectorAll(".content-display");
+        const prevBtn = document.getElementById("prev-btn");
+        const nextBtn = document.getElementById("next-btn");
+
+        let currentIndex = 0;
+        let currentRotation = 0;
+
+        // 初始显示第一项内容
+        showContent(currentIndex);
+
+        // 旋转轮盘并显示内容
+        function rotateToIndex(index) {
+          // 确保索引在有效范围内
+          index = (index + 5) % 5;
+
+          // 计算旋转角度 (每个扇区72度)
+          const targetRotation = -index * 72;
+          const rotationDiff = targetRotation - (currentRotation % 360);
+
+          // 计算最短旋转路径
+          let adjustedRotation;
+          if (rotationDiff > 180) {
+            adjustedRotation = rotationDiff - 360;
+          } else if (rotationDiff < -180) {
+            adjustedRotation = rotationDiff + 360;
+          } else {
+            adjustedRotation = rotationDiff;
+          }
+
+          // 更新旋转角度
+          currentRotation += adjustedRotation;
+
+          // 旋转轮盘
+          wheel.style.transform = `rotate(${currentRotation}deg)`;
+
+          // 更新当前索引
+          currentIndex = index;
+
+          // 显示相应内容
+          showContent(currentIndex);
+        }
+
+        // 显示内容
+        function showContent(index) {
+          // 隐藏所有内容
+          contents.forEach((content) => {
+            content.classList.remove("active");
+          });
+
+          // 显示当前索引对应的内容
+          const contentToShow = document.getElementById(`content-${index}`);
+          contentToShow.classList.add("active");
+        }
+
+        // 中心按钮点击事件
+        wheelCenter.addEventListener("click", function () {
+          // 随机旋转到一个扇区
+          const randomIndex = Math.floor(Math.random() * 5);
+          rotateToIndex(randomIndex);
+        });
+
+        // 扇区点击事件
+        segments.forEach((segment) => {
+          segment.addEventListener("click", function () {
+            const index = parseInt(this.getAttribute("data-index"));
+            rotateToIndex(index);
+          });
+        });
+
+        // 上一个按钮
+        prevBtn.addEventListener("click", function () {
+          rotateToIndex(currentIndex - 1);
+        });
+
+        // 下一个按钮
+        nextBtn.addEventListener("click", function () {
+          rotateToIndex(currentIndex + 1);
+        });
+
+        // 键盘控制
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "ArrowLeft") {
+            rotateToIndex(currentIndex - 1);
+          } else if (e.key === "ArrowRight") {
+            rotateToIndex(currentIndex + 1);
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Temu跨境电商平台系统设计 - 物流优化与异常处理</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary: #2a3f8a;
+        --secondary: #4ecdc4;
+        --light: #a7e8e2;
+        --dark: #1a4545;
+        --accent: rgb(251, 119, 1);
+        --text-light: #f8f9fa;
+        --text-dark: #343a40;
+        --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Noto Sans SC", sans-serif;
+        background-color: var(--text-light);
+        color: var(--text-dark);
+        overflow: hidden;
+        height: 100vh;
+        width: 100vw;
+      }
+
+      .slide-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* 左侧图片区域 */
+      .image-section {
+        width: 45%;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .image-container {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .image-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+      }
+
+      /* 图片渐变遮罩 */
+      .image-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          rgba(26, 69, 69, 0.9),
+          rgba(44, 110, 110, 0.7)
+        );
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 0 50px;
+        color: white;
+      }
+
+      .overlay-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        opacity: 0;
+        animation: fadeInLeft 0.8s ease-out forwards;
+      }
+
+      .overlay-desc {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        max-width: 90%;
+        opacity: 0;
+        animation: fadeInLeft 0.8s ease-out forwards 0.3s;
+      }
+
+      /* 右侧内容区域 */
+      .content-section {
+        width: 55%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        padding: 50px;
+        background-color: white;
+      }
+
+      .title-area {
+        margin-bottom: 40px;
+      }
+
+      .title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 10px;
+        position: relative;
+        opacity: 0;
+        animation: fadeInRight 0.8s ease-out forwards;
+      }
+
+      .title::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 80px;
+        height: 4px;
+        background: var(--secondary);
+        border-radius: 2px;
+      }
+
+      .subtitle {
+        font-size: 1.1rem;
+        color: var(--text-dark);
+        opacity: 0.8;
+        margin-top: 15px;
+        opacity: 0;
+        animation: fadeIn 0.8s ease-out forwards 0.3s;
+      }
+
+      /* 物流功能区域 */
+      .logistics-features {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        gap: 30px;
+        flex: 1;
+      }
+
+      .feature-box {
+        background: white;
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+        padding: 25px;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        border-left: 4px solid var(--secondary);
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      .box-1 {
+        animation: fadeInUp 0.6s ease-out forwards 0.2s;
+      }
+
+      .box-2 {
+        animation: fadeInUp 0.6s ease-out forwards 0.4s;
+      }
+
+      .box-3 {
+        animation: fadeInUp 0.6s ease-out forwards 0.6s;
+      }
+
+      .box-4 {
+        animation: fadeInUp 0.6s ease-out forwards 0.8s;
+      }
+
+      .feature-title {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .feature-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background-color: rgba(78, 205, 196, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        color: var(--secondary);
+        margin-right: 12px;
+        flex-shrink: 0;
+      }
+
+      .feature-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--primary);
+      }
+
+      .feature-desc {
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: var(--text-dark);
+        flex: 1;
+      }
+
+      /* 物流跟踪可视化 */
+      .tracking-visual {
+        margin-top: 10px;
+        height: 30px;
+        width: 100%;
+        position: relative;
+      }
+
+      .tracking-line {
+        height: 4px;
+        width: 100%;
+        background-color: #e9ecef;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        border-radius: 2px;
+      }
+
+      .tracking-progress {
+        height: 100%;
+        width: 70%;
+        background: linear-gradient(90deg, var(--secondary), var(--primary));
+        border-radius: 2px;
+      }
+
+      .tracking-node {
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        background: white;
+        border: 3px solid var(--secondary);
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      .node-1 {
+        left: 0;
+      }
+
+      .node-2 {
+        left: 30%;
+      }
+
+      .node-3 {
+        left: 70%;
+        border-color: var(--primary);
+      }
+
+      .node-4 {
+        right: 0;
+        background: #e9ecef;
+        border-color: #adb5bd;
+      }
+
+      /* 时间预测可视化 */
+      .time-prediction {
+        margin-top: 10px;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .time-block {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+
+      .time-value {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--primary);
+      }
+
+      .time-label {
+        font-size: 0.75rem;
+        color: var(--text-dark);
+        opacity: 0.7;
+      }
+
+      /* 异常处理流程图 */
+      .exception-flow {
+        margin-top: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .flow-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        position: relative;
+        width: 25%;
+      }
+
+      .flow-step::after {
+        content: "→";
+        position: absolute;
+        right: -10px;
+        top: 25%;
+        font-size: 1.2rem;
+        color: var(--text-dark);
+        opacity: 0.5;
+      }
+
+      .flow-step:last-child::after {
+        display: none;
+      }
+
+      .step-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: rgba(78, 205, 196, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        color: var(--secondary);
+        margin-bottom: 5px;
+      }
+
+      .step-name {
+        font-size: 0.8rem;
+        color: var(--text-dark);
+      }
+
+      /* 清关优化可视化 */
+      .clearance-optimization {
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+      }
+
+      .route-comparison {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .route {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+
+      .route-label {
+        width: 80px;
+        font-size: 0.8rem;
+        color: var(--text-dark);
+      }
+
+      .route-bar {
+        flex: 1;
+        height: 12px;
+        background-color: #e9ecef;
+        border-radius: 6px;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .route-progress {
+        height: 100%;
+        border-radius: 6px;
+      }
+
+      .route-time {
+        width: 60px;
+        text-align: right;
+        font-size: 0.8rem;
+        font-weight: 500;
+        margin-left: 10px;
+      }
+
+      .route-standard .route-progress {
+        width: 100%;
+        background-color: #adb5bd;
+      }
+
+      .route-optimized .route-progress {
+        width: 65%;
+        background-color: var(--secondary);
+      }
+
+      .savings-badge {
+        background-color: rgba(78, 205, 196, 0.1);
+        color: var(--secondary);
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 4px 8px;
+        border-radius: 4px;
+        margin-left: 15px;
+      }
+
+      /* 装饰元素 */
+      .decoration {
+        position: absolute;
+        opacity: 0.05;
+        z-index: 0;
+      }
+
+      .package-icon {
+        position: absolute;
+        right: 50px;
+        bottom: 50px;
+        width: 120px;
+        height: 120px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232c6e6e'%3E%3Cpath d='M21.6 8.2l-9-6a1 1 0 00-1.2 0l-9 6A1 1 0 002 9v11a1 1 0 001 1h18a1 1 0 001-1V9a1 1 0 00-.4-.8zM11 20H4v-9.6l7-4.7v14.3zm9 0h-7V5.7l7 4.7V20z'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: center;
+      }
+
+      /* 页脚 */
+      .footer {
+        position: absolute;
+        bottom: 20px;
+        right: 50px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 200px;
+      }
+
+      .page-number {
+        font-size: 1rem;
+        color: var(--text-dark);
+        opacity: 0.7;
+      }
+
+      .logo {
+        height: 24px;
+      }
+
+      /* 动画效果 */
+      @keyframes fadeInLeft {
+        from {
+          opacity: 0;
+          transform: translateX(-30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      @keyframes fadeInRight {
+        from {
+          opacity: 0;
+          transform: translateX(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadeInUp {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container">
+      <!-- 左侧图片区域 -->
+      <div class="image-section">
+        <div class="image-container">
+          <img src=".\static\design.jpg" alt="前端体验优化" />
+          <div class="image-overlay">
+            <h2 class="overlay-title">前端性能智能优化</h2>
+            <p class="overlay-desc">
+              运用数据分析与机器学习技术，打造流畅、高效的前端用户体验，实现页面加载与交互性能的全面提升
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右侧内容区域 -->
+      <div class="content-section">
+        <div class="title-area">
+          <h1 class="title">前端体验优化方案</h1>
+          <p class="subtitle">FRONTEND PERFORMANCE OPTIMIZATION</p>
+        </div>
+
+        <div class="logistics-features">
+          <!-- 性能分析诊断 -->
+          <div class="feature-box box-1">
+            <div class="feature-title">
+              <div class="feature-icon">📊</div>
+              <h3 class="feature-name">性能分析诊断</h3>
+            </div>
+            <p class="feature-desc">
+              利用数据分析技术，全面监控页面加载性能指标。智能识别性能瓶颈，分析用户交互卡顿原因，为优化提供数据支持。
+            </p>
+            <div class="tracking-visual">
+              <div class="tracking-line">
+                <div class="tracking-progress" style="width: 85%"></div>
+              </div>
+              <div class="tracking-node node-1"></div>
+              <div class="tracking-node node-2"></div>
+              <div class="tracking-node node-3"></div>
+              <div class="tracking-node node-4"></div>
+            </div>
+          </div>
+
+          <!-- 智能性能优化 -->
+          <div class="feature-box box-2">
+            <div class="feature-title">
+              <div class="feature-icon">⚡</div>
+              <h3 class="feature-name">智能性能优化</h3>
+            </div>
+            <p class="feature-desc">
+              基于机器学习算法，自动优化前端资源加载策略。智能预测用户行为，预加载关键资源，实现页面加载速度的显著提升。
+            </p>
+            <div class="time-prediction">
+              <div class="time-block">
+                <div class="time-value">1.2s</div>
+                <div class="time-label">首屏加载</div>
+              </div>
+              <div class="time-block">
+                <div class="time-value">0.3s</div>
+                <div class="time-label">交互响应</div>
+              </div>
+              <div class="time-block">
+                <div class="time-value">95%</div>
+                <div class="time-label">性能达标</div>
+              </div>
+              <div class="time-block" style="color: var(--accent)">
+                <div class="time-value">+40%</div>
+                <div class="time-label">提升率</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 渲染优化技术 -->
+          <div class="feature-box box-3">
+            <div class="feature-title">
+              <div class="feature-icon">🎯</div>
+              <h3 class="feature-name">渲染优化技术</h3>
+            </div>
+            <p class="feature-desc">
+              采用懒加载和虚拟列表等先进技术，优化页面渲染性能。智能管理DOM节点，减少重排重绘，确保复杂页面的流畅展示。
+            </p>
+            <div class="exception-flow">
+              <div class="flow-step">
+                <div class="step-icon">1</div>
+                <div class="step-name">资源优化</div>
+              </div>
+              <div class="flow-step">
+                <div class="step-icon">2</div>
+                <div class="step-name">渲染优化</div>
+              </div>
+              <div class="flow-step">
+                <div class="step-icon">3</div>
+                <div class="step-name">交互优化</div>
+              </div>
+              <div class="flow-step">
+                <div class="step-icon">4</div>
+                <div class="step-name">性能监控</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 用户体验监控 -->
+          <div class="feature-box box-4">
+            <div class="feature-title">
+              <div class="feature-icon">📱</div>
+              <h3 class="feature-name">用户体验监控</h3>
+            </div>
+            <p class="feature-desc">
+              实时监控用户交互体验，收集性能数据。通过机器学习分析用户行为模式，持续优化前端性能，提升整体用户体验。
+            </p>
+            <div class="clearance-optimization">
+              <div class="route-comparison">
+                <div class="route route-standard">
+                  <div class="route-label">优化前</div>
+                  <div class="route-bar">
+                    <div class="route-progress"></div>
+                  </div>
+                  <div class="route-time">3.5s</div>
+                </div>
+                <div class="route route-optimized">
+                  <div class="route-label">优化后</div>
+                  <div class="route-bar">
+                    <div class="route-progress"></div>
+                  </div>
+                  <div class="route-time">1.2s</div>
+                </div>
+              </div>
+              <div class="savings-badge">-66%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 装饰元素 -->
+        <div class="package-icon decoration"></div>
+
+        <!-- 页脚 -->
+        <div class="footer">
+          <span class="page-number">15 / 20</span>
+          <img class="logo" src="images/temu_logo.svg" alt="Temu Logo" />
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

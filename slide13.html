@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Temu跨境电商平台系统设计 - 多语言与货币支持</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary: #2a3f8a;
+        --secondary: #4ecdc4;
+        --light: #a7e8e2;
+        --dark: #1a4545;
+        --accent: rgb(251, 119, 1);
+        --text-light: #f8f9fa;
+        --text-dark: #343a40;
+        --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Noto Sans SC", sans-serif;
+        background-color: var(--text-light);
+        color: var(--text-dark);
+        overflow: hidden;
+        height: 100vh;
+        width: 100vw;
+      }
+
+      .slide-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* 左侧图片区域 */
+      .image-section {
+        width: 40%;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .image-container {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .image-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        animation: zoomIn 20s ease-in-out infinite alternate;
+      }
+
+      .image-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          135deg,
+          rgba(42, 63, 138, 0.8),
+          rgba(251, 119, 1, 0.6)
+        );
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        text-align: center;
+        padding: 40px;
+      }
+
+      .overlay-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        opacity: 0;
+        animation: fadeIn 0.8s ease-out forwards 0.5s;
+      }
+
+      .overlay-desc {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        max-width: 400px;
+        opacity: 0;
+        animation: fadeIn 0.8s ease-out forwards 0.8s;
+      }
+
+      /* 右侧内容区域 */
+      .content-section {
+        width: 60%;
+        height: 100%;
+        padding: 50px;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+      }
+
+      .title-area {
+        margin-bottom: 40px;
+      }
+
+      .title {
+        font-size: 2.4rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 15px;
+        position: relative;
+        display: inline-block;
+        opacity: 0;
+        animation: slideInRight 0.8s ease-out forwards;
+      }
+
+      .title::after {
+        content: "";
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 100px;
+        height: 4px;
+        background: linear-gradient(90deg, var(--secondary), var(--light));
+        border-radius: 2px;
+      }
+
+      .subtitle {
+        font-size: 1.2rem;
+        color: var(--text-dark);
+        opacity: 0.8;
+        margin-top: 10px;
+        opacity: 0;
+        animation: fadeIn 0.8s ease-out forwards 0.3s;
+      }
+
+      /* 功能特点区域 */
+      .features-container {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+        flex: 1;
+      }
+
+      .feature-item {
+        display: flex;
+        background: white;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        opacity: 0;
+        transform: translateX(30px);
+      }
+
+      .feature-1 {
+        animation: slideInRight 0.6s ease-out forwards 0.2s;
+      }
+
+      .feature-2 {
+        animation: slideInRight 0.6s ease-out forwards 0.4s;
+      }
+
+      .feature-3 {
+        animation: slideInRight 0.6s ease-out forwards 0.6s;
+      }
+
+      .feature-4 {
+        animation: slideInRight 0.6s ease-out forwards 0.8s;
+      }
+
+      .feature-icon {
+        background-color: var(--primary);
+        color: white;
+        min-width: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+      }
+
+      .feature-content {
+        padding: 20px;
+        flex: 1;
+      }
+
+      .feature-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--primary);
+        margin-bottom: 8px;
+      }
+
+      .feature-desc {
+        font-size: 0.95rem;
+        line-height: 1.5;
+        color: var(--text-dark);
+      }
+
+      /* 全球化元素装饰 */
+      .globe-decoration {
+        position: absolute;
+        bottom: 30px;
+        right: 30px;
+        width: 100px;
+        height: 100px;
+        opacity: 0.1;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%232c6e6e' d='M256 8C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm0 448c-110.532 0-200-89.431-200-200 0-110.495 89.472-200 200-200 110.491 0 200 89.471 200 200 0 110.53-89.431 200-200 200zm107.244-255.2c0 67.052-72.421 68.084-72.421 92.863V300c0 6.627-5.373 12-12 12h-45.647c-6.627 0-12-5.373-12-12v-8.659c0-35.745 27.1-50.034 47.579-61.516 17.561-9.845 28.324-16.541 28.324-29.579 0-17.246-21.999-28.693-39.784-28.693-23.189 0-33.894 10.977-48.942 29.969-4.057 5.12-11.46 6.071-16.666 2.124l-27.824-21.098c-5.107-3.872-6.251-11.066-2.644-16.363C184.846 131.491 214.94 112 261.794 112c49.071 0 101.45 38.304 101.45 88.8zM298 368c0 23.159-18.841 42-42 42s-42-18.841-42-42 18.841-42 42-42 42 18.841 42 42z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: center;
+        z-index: 0;
+      }
+
+      /* 多语言展示装饰 */
+      .languages-decoration {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 0.8rem;
+        color: var(--text-dark);
+        opacity: 0.2;
+        transform: rotate(-10deg);
+      }
+
+      .language-item {
+        margin-bottom: 3px;
+      }
+
+      /* 页脚 */
+      .footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+      }
+
+      .page-number {
+        font-size: 1rem;
+        color: var(--text-dark);
+        opacity: 0.7;
+      }
+
+      .logo {
+        height: 24px;
+      }
+
+      /* 动画效果 */
+      @keyframes slideInRight {
+        from {
+          opacity: 0;
+          transform: translateX(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes zoomIn {
+        from {
+          transform: scale(1);
+        }
+        to {
+          transform: scale(1.1);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container">
+      <!-- 左侧图片区域 -->
+      <div class="image-section">
+        <div class="image-container">
+          <img src=".\static\Machine Learning.jpg" alt="AI技术解决方案" />
+          <div class="image-overlay">
+            <h2 class="overlay-title">AI驱动的质量保障</h2>
+            <p class="overlay-desc">
+              运用计算机视觉与自然语言处理技术，打造智能化的商品质量检测与描述分析系统
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右侧内容区域 -->
+      <div class="content-section">
+        <div class="languages-decoration">
+          <div class="language-item">Computer Vision</div>
+          <div class="language-item">NLP</div>
+          <div class="language-item">AI Quality</div>
+          <div class="language-item">Auto Process</div>
+          <div class="language-item">Image Analysis</div>
+          <div class="language-item">Text Mining</div>
+          <div class="language-item">Smart Check</div>
+          <div class="language-item">Auto Return</div>
+          <div class="language-item">Quality Control</div>
+          <div class="language-item">AI Solution</div>
+        </div>
+
+        <div class="title-area">
+          <h1 class="title">产品质量与描述问题</h1>
+          <p class="subtitle">AI-DRIVEN QUALITY & DESCRIPTION SOLUTION</p>
+        </div>
+
+        <div class="features-container">
+          <!-- 计算机视觉检测 -->
+          <div class="feature-item feature-1">
+            <div class="feature-icon">👁️</div>
+            <div class="feature-content">
+              <h3 class="feature-title">计算机视觉质量检测</h3>
+              <p class="feature-desc">
+                利用计算机视觉技术对商品图片进行智能分析，自动检测图片质量、实物一致性，确保商品展示的真实性和准确性。系统可识别图片清晰度、角度、光线等关键因素。
+              </p>
+            </div>
+          </div>
+
+          <!-- 自然语言处理分析 -->
+          <div class="feature-item feature-2">
+            <div class="feature-icon">📝</div>
+            <div class="feature-content">
+              <h3 class="feature-title">智能描述分析系统</h3>
+              <p class="feature-desc">
+                通过自然语言处理技术对商品描述进行深度分析，自动检查描述完整性、准确性，识别关键信息缺失，确保商品描述全面且符合规范，提升用户理解度。
+              </p>
+            </div>
+          </div>
+
+          <!-- 自动化流程 -->
+          <div class="feature-item feature-3">
+            <div class="feature-icon">⚡</div>
+            <div class="feature-content">
+              <h3 class="feature-title">智能退换货流程</h3>
+              <p class="feature-desc">
+                建立全自动化的退换货处理系统，通过AI技术快速识别退换货原因，智能匹配处理方案，简化用户操作流程，提升售后处理效率，优化用户体验。
+              </p>
+            </div>
+          </div>
+
+          <!-- 质量监控 -->
+          <div class="feature-item feature-4">
+            <div class="feature-icon">📊</div>
+            <div class="feature-content">
+              <h3 class="feature-title">实时质量监控</h3>
+              <p class="feature-desc">
+                构建商品质量实时监控体系，通过AI技术持续追踪商品质量指标，及时发现并预警潜在问题，确保平台商品质量稳定，提升用户满意度。
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="globe-decoration"></div>
+
+        <div class="footer">
+          <span class="page-number">13 / 20</span>
+          <img class="logo" src="images/temu_logo.svg" alt="Temu Logo" />
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

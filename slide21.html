@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Temu跨境电商平台系统设计 - 系统管理员需求</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary: #2a3f8a;
+        --primary-dark: #1d2c60;
+        --secondary: #4a76ba;
+        --secondary-light: #a0c5e5;
+        --light: #c5d8e8;
+        --dark: #1d2c60;
+        --accent: #ff6a5a;
+        --accent-light: #ffbeb6;
+        --text-light: #f8f9fa;
+        --text-dark: #343a40;
+        --shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        --shadow-hover: 0 12px 28px rgba(0, 0, 0, 0.18);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Noto Sans SC", sans-serif;
+        color: var(--text-dark);
+        overflow: hidden;
+        height: 100vh;
+        width: 100vw;
+      }
+
+      .slide-container {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(120deg, #f5f7fa 0%, #e4ecf7 100%);
+      }
+
+      /* 主要内容区域 */
+      .content-wrapper {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* 标题区域 */
+      .header {
+        text-align: center;
+        margin-bottom: 20px;
+        position: relative;
+        z-index: 10;
+      }
+
+      .title {
+        font-size: 2.4rem;
+        font-weight: 700;
+        color: var(--primary);
+        position: relative;
+        display: inline-block;
+        opacity: 0;
+        animation: fadeIn 0.8s ease-out forwards;
+      }
+
+      .title::after {
+        content: "";
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        transform: scaleX(0);
+        transform-origin: left;
+        animation: expandUnderline 0.8s ease-out forwards 0.4s;
+      }
+
+      .subtitle {
+        font-size: 1.1rem;
+        color: var(--secondary);
+        margin-top: 15px;
+        opacity: 0;
+        animation: fadeIn 0.8s ease-out forwards 0.2s;
+      }
+
+      /* 内容布局 */
+      .content-grid {
+        flex: 1;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        gap: 25px;
+        z-index: 2;
+        padding: 10px 0;
+      }
+
+      /* 中心的管理员图像 */
+      .admin-image-container {
+        grid-column: 2;
+        grid-row: 1;
+        justify-self: center;
+        align-self: center;
+        position: relative;
+        width: 220px;
+        height: 220px;
+        perspective: 1000px;
+        z-index: 5;
+        opacity: 0;
+        animation: fadeIn 0.8s ease-out forwards 0.4s;
+      }
+
+      .admin-image-wrapper {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        transform-style: preserve-3d;
+        transform: rotateY(5deg) rotateX(5deg);
+        transition: transform 0.5s ease;
+      }
+
+      .admin-image-wrapper:hover {
+        transform: rotateY(-5deg) rotateX(-2deg);
+      }
+
+      .admin-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 15px;
+        box-shadow: 0 20px 30px rgba(0, 0, 0, 0.2),
+          0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+      }
+
+      .image-glow {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 15px;
+        box-shadow: 0 0 70px 10px rgba(74, 118, 186, 0.25);
+        opacity: 0;
+        animation: fadeIn 1s ease-out forwards 0.6s;
+      }
+
+      /* 需求卡片 */
+      .requirement-card {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08),
+          0 0 0 1px rgba(255, 255, 255, 0.7) inset;
+        padding: 22px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        opacity: 0;
+      }
+
+      .requirement-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12),
+          0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+      }
+
+      .requirement-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: linear-gradient(
+          to bottom,
+          var(--primary),
+          var(--secondary)
+        );
+      }
+
+      /* 卡片位置 */
+      .system-maintenance {
+        grid-column: 1;
+        grid-row: 1;
+        animation: fadeInLeft 0.8s ease-out forwards 0.5s;
+      }
+
+      .user-management {
+        grid-column: 3;
+        grid-row: 1;
+        animation: fadeInRight 0.8s ease-out forwards 0.5s;
+      }
+
+      .data-analysis {
+        grid-column: 1;
+        grid-row: 2;
+        animation: fadeInLeft 0.8s ease-out forwards 0.7s;
+      }
+
+      .logistics-management {
+        grid-column: 3;
+        grid-row: 2;
+        animation: fadeInRight 0.8s ease-out forwards 0.7s;
+      }
+
+      .security-compliance {
+        grid-column: 2;
+        grid-row: 2;
+        animation: fadeInUp 0.8s ease-out forwards 0.9s;
+      }
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 18px;
+      }
+
+      .card-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        margin-right: 15px;
+        box-shadow: 0 5px 15px rgba(42, 63, 138, 0.2);
+      }
+
+      .card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--primary);
+      }
+
+      .card-content ul {
+        list-style: none;
+      }
+
+      .card-content li {
+        position: relative;
+        padding-left: 24px;
+        margin-bottom: 12px;
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+
+      .card-content li::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 8px;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: var(--secondary);
+        box-shadow: 0 0 0 2px rgba(74, 118, 186, 0.2);
+        transition: all 0.2s ease;
+      }
+
+      .card-content li:hover::before {
+        background-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(255, 106, 90, 0.2);
+        transform: scale(1.2);
+      }
+
+      /* 连接线和节点 */
+      .connections {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1;
+      }
+
+      .connector {
+        position: absolute;
+        height: 2px;
+        background: linear-gradient(
+          90deg,
+          rgba(74, 118, 186, 0.2),
+          rgba(42, 63, 138, 0.3)
+        );
+        z-index: 1;
+        opacity: 0;
+        transform-origin: left;
+      }
+
+      .connector-1 {
+        width: 15%;
+        top: 38%;
+        left: 29%;
+        animation: growRight 0.6s ease-out forwards 1.1s;
+      }
+
+      .connector-2 {
+        width: 15%;
+        top: 38%;
+        right: 29%;
+        transform-origin: right;
+        animation: growLeft 0.6s ease-out forwards 1.1s;
+      }
+
+      .connector-3 {
+        width: 15%;
+        bottom: 38%;
+        left: 29%;
+        animation: growRight 0.6s ease-out forwards 1.3s;
+      }
+
+      .connector-4 {
+        width: 15%;
+        bottom: 38%;
+        right: 29%;
+        transform-origin: right;
+        animation: growLeft 0.6s ease-out forwards 1.3s;
+      }
+
+      .connector-5 {
+        width: 10%;
+        bottom: 48%;
+        left: 45%;
+        animation: growRight 0.6s ease-out forwards 1.5s;
+      }
+
+      /* 背景装饰 */
+      .bg-decoration {
+        position: absolute;
+        pointer-events: none;
+        z-index: 1;
+      }
+
+      .bg-particle {
+        position: absolute;
+        border-radius: 50%;
+        opacity: 0.4;
+        filter: blur(10px);
+      }
+
+      .particle-1 {
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(
+          circle at center,
+          rgba(74, 118, 186, 0.15),
+          rgba(74, 118, 186, 0)
+        );
+        top: -200px;
+        left: -200px;
+        animation: float 15s ease-in-out infinite;
+      }
+
+      .particle-2 {
+        width: 350px;
+        height: 350px;
+        background: radial-gradient(
+          circle at center,
+          rgba(255, 106, 90, 0.1),
+          rgba(255, 106, 90, 0)
+        );
+        bottom: -100px;
+        right: -150px;
+        animation: float 18s ease-in-out infinite -5s;
+      }
+
+      .particle-3 {
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(
+          circle at center,
+          rgba(42, 63, 138, 0.1),
+          rgba(42, 63, 138, 0)
+        );
+        bottom: 20%;
+        left: 15%;
+        animation: float 12s ease-in-out infinite -3s;
+      }
+
+      .particle-4 {
+        width: 250px;
+        height: 250px;
+        background: radial-gradient(
+          circle at center,
+          rgba(74, 118, 186, 0.08),
+          rgba(74, 118, 186, 0)
+        );
+        top: 15%;
+        right: 10%;
+        animation: float 20s ease-in-out infinite -8s;
+      }
+
+      .bg-pattern {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        opacity: 0.3;
+        background-image: linear-gradient(
+            var(--primary-dark) 1px,
+            transparent 1px
+          ),
+          linear-gradient(90deg, var(--primary-dark) 1px, transparent 1px);
+        background-size: 50px 50px;
+        background-position: -1px -1px;
+        mask-image: radial-gradient(
+          circle at center,
+          black 30%,
+          transparent 70%
+        );
+      }
+
+      /* 页脚 */
+      .footer {
+        position: absolute;
+        bottom: 20px;
+        right: 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 150px;
+        z-index: 10;
+      }
+
+      .page-number {
+        font-size: 1rem;
+        color: var(--text-dark);
+        opacity: 0.7;
+      }
+
+      .logo {
+        height: 24px;
+      }
+
+      /* 动画 */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes expandUnderline {
+        from {
+          transform: scaleX(0);
+        }
+        to {
+          transform: scaleX(1);
+        }
+      }
+
+      @keyframes fadeInLeft {
+        from {
+          opacity: 0;
+          transform: translateX(-30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      @keyframes fadeInRight {
+        from {
+          opacity: 0;
+          transform: translateX(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes growRight {
+        from {
+          opacity: 0;
+          transform: scaleX(0);
+        }
+        to {
+          opacity: 1;
+          transform: scaleX(1);
+        }
+      }
+
+      @keyframes growLeft {
+        from {
+          opacity: 0;
+          transform: scaleX(0);
+        }
+        to {
+          opacity: 1;
+          transform: scaleX(1);
+        }
+      }
+
+      @keyframes float {
+        0% {
+          transform: translate(0, 0);
+        }
+        50% {
+          transform: translate(15px, 15px);
+        }
+        100% {
+          transform: translate(0, 0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container">
+      <!-- 背景装饰 -->
+      <div class="bg-pattern"></div>
+      <div class="bg-particle particle-1 bg-decoration"></div>
+      <div class="bg-particle particle-2 bg-decoration"></div>
+      <div class="bg-particle particle-3 bg-decoration"></div>
+      <div class="bg-particle particle-4 bg-decoration"></div>
+
+      <!-- 主要内容 -->
+      <div class="content-wrapper">
+        <!-- 标题区域 -->
+        <div class="header">
+          <h1 class="title">系统管理员需求</h1>
+          <p class="subtitle">SYSTEM ADMINISTRATOR REQUIREMENTS</p>
+        </div>
+
+        <!-- 内容网格 -->
+        <div class="content-grid">
+          <!-- 中心图片 -->
+          <div class="admin-image-container">
+            <div class="admin-image-wrapper">
+              <img
+                src="static\System Administrator.jpg"
+                alt="系统管理员"
+                class="admin-image"
+              />
+              <div class="image-glow"></div>
+            </div>
+          </div>
+
+          <!-- 系统维护 -->
+          <div class="requirement-card system-maintenance">
+            <div class="card-header">
+              <div class="card-icon">🔧</div>
+              <h3 class="card-title">系统维护</h3>
+            </div>
+            <div class="card-content">
+              <ul>
+                <li>异常检测与处理</li>
+                <li>日志记录与分析</li>
+                <li>系统性能监控</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- 用户管理 -->
+          <div class="requirement-card user-management">
+            <div class="card-header">
+              <div class="card-icon">👥</div>
+              <h3 class="card-title">用户管理</h3>
+            </div>
+            <div class="card-content">
+              <ul>
+                <li>商家资质审核</li>
+                <li>用户账户管理</li>
+                <li>权限分配与控制</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- 数据分析 -->
+          <div class="requirement-card data-analysis">
+            <div class="card-header">
+              <div class="card-icon">📊</div>
+              <h3 class="card-title">数据分析</h3>
+            </div>
+            <div class="card-content">
+              <ul>
+                <li>生成经营报表</li>
+                <li>评估绩效指标</li>
+                <li>数据挖掘与预测</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- 物流管理 -->
+          <div class="requirement-card logistics-management">
+            <div class="card-header">
+              <div class="card-icon">🚚</div>
+              <h3 class="card-title">物流管理</h3>
+            </div>
+            <div class="card-content">
+              <ul>
+                <li>路径规划</li>
+                <li>异常处理追踪</li>
+                <li>合作伙伴管理</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- 安全合规 -->
+          <div class="requirement-card security-compliance">
+            <div class="card-header">
+              <div class="card-icon">🔒</div>
+              <h3 class="card-title">安全合规</h3>
+            </div>
+            <div class="card-content">
+              <ul>
+                <li>法规与政策适配</li>
+                <li>区域性服务调整</li>
+                <li>数据安全与隐私保护</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- 连接线 -->
+        <div class="connections">
+          <div class="connector connector-1"></div>
+          <div class="connector connector-2"></div>
+          <div class="connector connector-3"></div>
+          <div class="connector connector-4"></div>
+          <div class="connector connector-5"></div>
+        </div>
+      </div>
+
+      <!-- 页脚 -->
+      <div class="footer">
+        <span class="page-number">21 / 22</span>
+        <img class="logo" src="images/temu_logo.svg" alt="Temu Logo" />
+      </div>
+    </div>
+  </body>
+</html>

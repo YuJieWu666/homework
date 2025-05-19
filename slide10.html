@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Temu跨境电商平台系统设计 - 售后体验问题</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary: #2a3f8a;
+        --accent: rgb(251, 119, 1);
+        --secondary: #f8f9fa;
+        --text-dark: #2c3e50;
+        --text-secondary: #546e7a;
+        --border: #e0e0e0;
+        --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        --widget-bg: rgba(255, 255, 255, 0.95);
+        --bg-color: #f8f9fa;
+        --error: #ff4e4e;
+        --warning: #ffb74d;
+        --success: #81c784;
+        --info: #64b5f6;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Noto Sans SC", sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-dark);
+        overflow: hidden;
+        height: 100vh;
+        width: 100vw;
+        position: relative;
+      }
+
+      /* 背景效果 */
+      .service-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url("static/After-sales\ service.jpg") center/cover
+          no-repeat;
+        opacity: 0.1;
+        z-index: 0;
+      }
+
+      .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          135deg,
+          rgba(42, 63, 138, 0.05) 0%,
+          rgba(251, 119, 1, 0.05) 100%
+        );
+        z-index: 1;
+      }
+
+      .grid-pattern {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: linear-gradient(var(--primary) 1px, transparent 1px),
+          linear-gradient(90deg, var(--primary) 1px, transparent 1px);
+        background-size: 40px 40px;
+        opacity: 0.03;
+        z-index: 2;
+      }
+
+      .main-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        padding: 30px;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid var(--border);
+      }
+
+      .title-section {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .title-icon {
+        width: 50px;
+        height: 50px;
+        background-color: var(--primary);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+      }
+
+      .title-text h1 {
+        font-size: 2rem;
+        color: var(--primary);
+        margin-bottom: 5px;
+      }
+
+      .title-text p {
+        color: var(--accent);
+        font-size: 0.9rem;
+        opacity: 0.8;
+      }
+
+      .stats-container {
+        display: flex;
+        gap: 20px;
+      }
+
+      .stat-card {
+        background: var(--widget-bg);
+        padding: 15px 25px;
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+        text-align: center;
+        min-width: 150px;
+      }
+
+      .stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 5px;
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+      }
+
+      .content-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 25px;
+        flex: 1;
+      }
+
+      .issue-card {
+        background: var(--widget-bg);
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: var(--shadow);
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.3s ease;
+      }
+
+      .issue-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .issue-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .issue-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        margin-right: 15px;
+      }
+
+      .issue-1 .issue-icon {
+        background-color: rgba(255, 78, 78, 0.1);
+        color: var(--error);
+      }
+
+      .issue-2 .issue-icon {
+        background-color: rgba(255, 183, 77, 0.1);
+        color: var(--warning);
+      }
+
+      .issue-3 .issue-icon {
+        background-color: rgba(100, 181, 246, 0.1);
+        color: var(--info);
+      }
+
+      .issue-4 .issue-icon {
+        background-color: rgba(129, 199, 132, 0.1);
+        color: var(--success);
+      }
+
+      .issue-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--primary);
+      }
+
+      .issue-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .issue-description {
+        color: var(--text-secondary);
+        line-height: 1.6;
+        font-size: 0.95rem;
+      }
+
+      .issue-metrics {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin-top: auto;
+      }
+
+      .metric {
+        background: rgba(42, 63, 138, 0.05);
+        padding: 12px;
+        border-radius: 8px;
+        text-align: center;
+      }
+
+      .metric-value {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--primary);
+        margin-bottom: 5px;
+      }
+
+      .metric-label {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+      }
+
+      .footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 30px;
+        padding-top: 15px;
+        border-top: 1px solid var(--border);
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+      }
+
+      .logo {
+        height: 30px;
+        opacity: 0.8;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="service-background"></div>
+    <div class="overlay"></div>
+    <div class="grid-pattern"></div>
+
+    <div class="main-container">
+      <div class="header">
+        <div class="title-section">
+          <div class="title-icon">🔄</div>
+          <div class="title-text">
+            <h1>售后体验问题</h1>
+            <p>AFTER-SALES SERVICE ISSUES</p>
+          </div>
+        </div>
+        <div class="stats-container">
+          <div class="stat-card">
+            <div class="stat-value">72%</div>
+            <div class="stat-label">用户满意度</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">4.2天</div>
+            <div class="stat-label">平均处理时间</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-grid">
+        <!-- 退货流程复杂不透明 -->
+        <div class="issue-card issue-1">
+          <div class="issue-header">
+            <div class="issue-icon">📝</div>
+            <div class="issue-title">退货流程复杂不透明</div>
+          </div>
+          <div class="issue-content">
+            <div class="issue-description">
+              退货流程步骤繁琐，用户难以理解具体操作流程。缺乏清晰的进度展示，导致用户对退货状态不明确。
+            </div>
+            <div class="issue-metrics">
+              <div class="metric">
+                <div class="metric-value">6步</div>
+                <div class="metric-label">平均流程步骤</div>
+              </div>
+              <div class="metric">
+                <div class="metric-value">35%</div>
+                <div class="metric-label">流程放弃率</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 退款处理速度慢 -->
+        <div class="issue-card issue-2">
+          <div class="issue-header">
+            <div class="issue-icon">⏱️</div>
+            <div class="issue-title">退款处理速度慢</div>
+          </div>
+          <div class="issue-content">
+            <div class="issue-description">
+              退款审核和处理周期长，资金到账延迟，影响用户资金周转和购物体验。
+            </div>
+            <div class="issue-metrics">
+              <div class="metric">
+                <div class="metric-value">7-15天</div>
+                <div class="metric-label">平均处理周期</div>
+              </div>
+              <div class="metric">
+                <div class="metric-value">42%</div>
+                <div class="metric-label">超时率</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 客服响应效率低 -->
+        <div class="issue-card issue-3">
+          <div class="issue-header">
+            <div class="issue-icon">💬</div>
+            <div class="issue-title">客服响应效率低</div>
+          </div>
+          <div class="issue-content">
+            <div class="issue-description">
+              客服响应时间长，问题解决效率低，缺乏专业性和一致性，影响用户问题解决体验。
+            </div>
+            <div class="issue-metrics">
+              <div class="metric">
+                <div class="metric-value">25分钟</div>
+                <div class="metric-label">平均响应时间</div>
+              </div>
+              <div class="metric">
+                <div class="metric-value">38%</div>
+                <div class="metric-label">一次解决率</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 售后政策执行不一致 -->
+        <div class="issue-card issue-4">
+          <div class="issue-header">
+            <div class="issue-icon">📋</div>
+            <div class="issue-title">售后政策执行不一致</div>
+          </div>
+          <div class="issue-content">
+            <div class="issue-description">
+              不同地区、不同客服对售后政策的理解和执行存在差异，导致用户获得的服务体验不一致。
+            </div>
+            <div class="issue-metrics">
+              <div class="metric">
+                <div class="metric-value">45%</div>
+                <div class="metric-label">政策执行差异率</div>
+              </div>
+              <div class="metric">
+                <div class="metric-value">28%</div>
+                <div class="metric-label">投诉率</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div>售后服务数据更新时间: 2023-06-15 08:30:22</div>
+        <img src="images/temu_logo.svg" alt="Temu Logo" class="logo" />
+      </div>
+    </div>
+  </body>
+</html>

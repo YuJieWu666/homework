@@ -1,0 +1,418 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --temu-orange: #ff4e00;
+  --temu-deep-blue: #003366;
+  --temu-white: #ffffff;
+  --temu-light-gray: #f5f5f5;
+}
+
+body {
+  font-family: "Microsoft YaHei", Arial, sans-serif;
+  background-color: #000;
+  color: #fff;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+}
+
+.ppt-player {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+  background-color: #000;
+  overflow: hidden;
+}
+
+.slides-container {
+  width: 100%;
+  height: calc(100vh - 60px);
+  position: relative;
+  overflow: hidden;
+}
+
+.slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.8s ease, transform 0.8s ease;
+  background-color: #000;
+  transform: scale(0.9);
+}
+
+.slide.active {
+  opacity: 1;
+  z-index: 1;
+  transform: scale(1);
+}
+
+/* 背景蒙版效果 */
+.slide[style*="background-image"]::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+/* 标准幻灯片样式 */
+.slide h1 {
+  font-size: 3em;
+  margin-bottom: 30px;
+  color: #fff;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.slide p {
+  font-size: 1.8em;
+  margin-bottom: 20px;
+  line-height: 1.6;
+  color: #eee;
+}
+
+.slide ul,
+.slide ol {
+  text-align: left;
+  font-size: 1.5em;
+  padding-left: 30px;
+  margin-bottom: 20px;
+  color: #eee;
+}
+
+.slide li {
+  margin-bottom: 15px;
+}
+
+/* 封面幻灯片样式 */
+.cover-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  max-width: 1200px;
+  position: relative;
+  z-index: 2;
+}
+
+.logo-container {
+  margin-bottom: 40px;
+  animation: fadeInDown 1.2s ease-out;
+}
+
+.temu-logo {
+  width: 180px;
+  height: auto;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
+}
+
+.cover-title {
+  font-size: 4em;
+  font-weight: 700;
+  color: rgb(0, 51, 88) !important;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  margin-bottom: 20px;
+  line-height: 1.2;
+  animation: fadeInUp 1s ease-out;
+}
+
+.cover-subtitle {
+  font-size: 2em;
+  font-weight: 400;
+  color: rgb(0, 51, 102) !important;
+  margin-bottom: 60px;
+  max-width: 80%;
+  line-height: 1.4;
+  animation: fadeInUp 1.4s ease-out;
+}
+
+.cover-info {
+  position: absolute;
+  bottom: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: fadeIn 2s ease-out;
+}
+
+.group-info,
+.date {
+  font-size: 1.4em;
+  color: var(--temu-white);
+  margin: 8px 0;
+}
+
+/* 动画 */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.controls {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 100;
+  transition: opacity 0.3s;
+}
+
+.ppt-player:hover .controls {
+  opacity: 1;
+}
+
+.controls:not(:hover) {
+  opacity: 0.3;
+}
+
+.left-controls,
+.right-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.center-controls {
+  flex-grow: 1;
+  text-align: center;
+}
+
+.control-btn {
+  background-color: transparent;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.2s, transform 0.2s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.control-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.control-btn:disabled {
+  color: #666;
+  cursor: not-allowed;
+  transform: none;
+}
+
+#slideCounter {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #fff;
+}
+
+/* 全屏模式 */
+.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  background-color: #000;
+}
+
+/* 全屏模式下隐藏控制栏 */
+.ppt-player:-webkit-full-screen .controls {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ppt-player:-moz-full-screen .controls {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ppt-player:-ms-fullscreen .controls {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ppt-player:fullscreen .controls {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 鼠标移动时在全屏模式下短暂显示控制栏 */
+.ppt-player:-webkit-full-screen:hover .controls {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.3s;
+}
+
+.ppt-player:-moz-full-screen:hover .controls {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.3s;
+}
+
+.ppt-player:-ms-fullscreen:hover .controls {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.3s;
+}
+
+.ppt-player:fullscreen:hover .controls {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.3s;
+}
+
+/* 图标样式调整 */
+.control-btn i {
+  font-size: 1.2em;
+}
+
+/* 适应不同设备的响应式设计 */
+@media (max-width: 768px) {
+  .slide h1,
+  .cover-title {
+    font-size: 2.5em;
+  }
+
+  .cover-subtitle {
+    font-size: 1.5em;
+  }
+
+  .slide p {
+    font-size: 1.3em;
+  }
+
+  .slide ul,
+  .slide ol {
+    font-size: 1.2em;
+  }
+
+  .controls {
+    height: 50px;
+  }
+
+  .control-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .temu-logo {
+    width: 120px;
+  }
+}
+
+/* Temu主题元素 */
+.temu-gradient-bg {
+  background: linear-gradient(
+    135deg,
+    var(--temu-deep-blue) 0%,
+    var(--temu-orange) 100%
+  );
+}
+
+/* 幻灯片切换动画 */
+.slide-out-left {
+  animation: slideOutLeft 0.8s forwards;
+}
+
+.slide-out-right {
+  animation: slideOutRight 0.8s forwards;
+}
+
+@keyframes slideOutLeft {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

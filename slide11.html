@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Temu跨境电商平台系统设计 - 前端体验问题</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary: #2a3f8a;
+        --accent: rgb(251, 119, 1);
+        --secondary: #f8f9fa;
+        --text-dark: #2c3e50;
+        --text-light: #ffffff;
+        --overlay: rgba(42, 63, 138, 0.85);
+        --card-bg: rgba(255, 255, 255, 0.95);
+        --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        --gradient: linear-gradient(135deg, var(--primary), var(--accent));
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Noto Sans SC", sans-serif;
+        background-color: var(--text-dark);
+        color: var(--text-light);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      .hero-section {
+        position: relative;
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+      }
+
+      .hero-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: brightness(0.7);
+      }
+
+      .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--overlay);
+        z-index: 1;
+      }
+
+      .content-wrapper {
+        position: relative;
+        z-index: 2;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 2rem;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 3rem;
+        padding-top: 2rem;
+      }
+
+      .title {
+        font-size: 3.5rem;
+        font-weight: 700;
+        color: var(--text-light);
+        margin-bottom: 1rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        position: relative;
+        display: inline-block;
+      }
+
+      .title::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 120px;
+        height: 4px;
+        background: var(--accent);
+        border-radius: 2px;
+      }
+
+      .subtitle {
+        font-size: 1.2rem;
+        color: var(--text-light);
+        opacity: 0.9;
+        letter-spacing: 2px;
+      }
+
+      .issues-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem;
+      }
+
+      .issue-card {
+        background: var(--card-bg);
+        border-radius: 20px;
+        padding: 2rem;
+        color: var(--text-dark);
+        transform: translateY(0);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+      }
+
+      .issue-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 6px;
+        background: var(--gradient);
+      }
+
+      .issue-card:hover {
+        transform: translateY(-10px);
+        box-shadow: var(--shadow);
+      }
+
+      .issue-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .issue-icon {
+        font-size: 2rem;
+        margin-right: 1rem;
+        background: var(--gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .issue-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--primary);
+      }
+
+      .issue-desc {
+        font-size: 1rem;
+        line-height: 1.6;
+        color: var(--text-dark);
+        margin-bottom: 1.5rem;
+      }
+
+      .metrics-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+
+      .metric {
+        text-align: center;
+        padding: 1rem;
+        background: rgba(42, 63, 138, 0.05);
+        border-radius: 12px;
+      }
+
+      .metric-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--accent);
+        margin-bottom: 0.5rem;
+      }
+
+      .metric-label {
+        font-size: 0.9rem;
+        color: var(--text-dark);
+        opacity: 0.8;
+      }
+
+      .impact-tag {
+        position: absolute;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        padding: 0.5rem 1rem;
+        background: var(--gradient);
+        color: var(--text-light);
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
+
+      .logo {
+        position: absolute;
+        top: 2rem;
+        right: 2rem;
+        z-index: 10;
+      }
+
+      .logo img {
+        width: 100px;
+        height: auto;
+        filter: brightness(0) invert(1);
+      }
+
+      @media (max-width: 1200px) {
+        .issues-grid {
+          grid-template-columns: 1fr;
+          max-width: 800px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .title {
+          font-size: 2.5rem;
+        }
+
+        .content-wrapper {
+          padding: 1rem;
+        }
+
+        .issues-grid {
+          padding: 0 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="hero-section">
+      <img
+        src="static/Shopping experience.jpg"
+        alt="Shopping Experience"
+        class="hero-image"
+      />
+      <div class="overlay"></div>
+
+      <div class="content-wrapper">
+        <div class="logo">
+          <img src="images/temu_logo.svg" alt="Temu Logo" />
+        </div>
+
+        <div class="header">
+          <h1 class="title">前端体验问题</h1>
+          <p class="subtitle">FRONTEND EXPERIENCE ISSUES</p>
+        </div>
+
+        <div class="issues-grid">
+          <!-- 页面加载问题 -->
+          <div class="issue-card">
+            <div class="issue-header">
+              <div class="issue-icon">⚡</div>
+              <h3 class="issue-title">页面加载与性能</h3>
+            </div>
+            <p class="issue-desc">
+              页面加载速度慢，交互响应延迟，在低端设备上表现尤为明显，严重影响用户购物体验。
+            </p>
+            <div class="metrics-container">
+              <div class="metric">
+                <div class="metric-value">3.8s</div>
+                <div class="metric-label">平均加载时间</div>
+              </div>
+              <div class="metric">
+                <div class="metric-value">42%</div>
+                <div class="metric-label">低端设备卡顿率</div>
+              </div>
+            </div>
+            <div class="impact-tag">影响用户体验</div>
+          </div>
+
+          <!-- 搜索推荐问题 -->
+          <div class="issue-card">
+            <div class="issue-header">
+              <div class="issue-icon">🔍</div>
+              <h3 class="issue-title">搜索与推荐算法</h3>
+            </div>
+            <p class="issue-desc">
+              搜索结果相关性低，推荐内容不精准，无法满足用户个性化需求，影响购物效率。
+            </p>
+            <div class="metrics-container">
+              <div class="metric">
+                <div class="metric-value">35%</div>
+                <div class="metric-label">搜索相关度</div>
+              </div>
+              <div class="metric">
+                <div class="metric-value">28%</div>
+                <div class="metric-label">推荐点击率</div>
+              </div>
+            </div>
+            <div class="impact-tag">影响购物效率</div>
+          </div>
+
+          <!-- APP崩溃问题 -->
+          <div class="issue-card">
+            <div class="issue-header">
+              <div class="issue-icon">⚠️</div>
+              <h3 class="issue-title">APP崩溃与兼容性</h3>
+            </div>
+            <p class="issue-desc">
+              部分Android机型存在闪退问题，系统兼容性差，影响用户正常使用，降低用户留存率。
+            </p>
+            <div class="metrics-container">
+              <div class="metric">
+                <div class="metric-value">2.8%</div>
+                <div class="metric-label">崩溃率</div>
+              </div>
+              <div class="metric">
+                <div class="metric-value">15%</div>
+                <div class="metric-label">兼容性问题率</div>
+              </div>
+            </div>
+            <div class="impact-tag">影响用户留存</div>
+          </div>
+
+          <!-- 优化建议 -->
+          <div class="issue-card">
+            <div class="issue-header">
+              <div class="issue-icon">📈</div>
+              <h3 class="issue-title">性能优化建议</h3>
+            </div>
+            <p class="issue-desc">
+              建议实施性能优化方案，包括代码分割、懒加载、缓存优化等，显著提升用户体验。
+            </p>
+            <div class="metrics-container">
+              <div class="metric">
+                <div class="metric-value">-45%</div>
+                <div class="metric-label">预期加载时间</div>
+              </div>
+              <div class="metric">
+                <div class="metric-value">+30%</div>
+                <div class="metric-label">预期性能提升</div>
+              </div>
+            </div>
+            <div class="impact-tag">优化空间大</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

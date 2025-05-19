@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Temu跨境电商平台系统设计 - 消费者使用场景</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .slide-container {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #ffffff 0%, #f8f8f8 100%);
+        position: relative;
+        overflow: hidden;
+        font-family: "Noto Sans SC", sans-serif;
+        animation: slideInRight 0.8s ease-out forwards;
+      }
+
+      .bg-temu-orange {
+        background-color: #ff4e00;
+      }
+
+      .text-temu-orange {
+        color: #ff4e00;
+      }
+
+      .bg-temu-blue {
+        background-color: #003366;
+      }
+
+      .text-temu-blue {
+        color: #003366;
+      }
+
+      .logo-container {
+        position: absolute;
+        top: 30px;
+        right: 30px;
+        z-index: 10;
+        animation: fadeIn 1.2s ease-out;
+      }
+
+      .page-number {
+        position: absolute;
+        bottom: 20px;
+        right: 30px;
+        font-size: 1rem;
+        color: #003366;
+        opacity: 0.7;
+      }
+
+      .title-container {
+        animation: fadeInDown 1s ease-out;
+        max-width: 900px;
+        position: relative;
+        z-index: 5;
+      }
+
+      .animated-bar {
+        width: 80px;
+        height: 4px;
+        animation: growWidth 1.4s ease-out;
+      }
+
+      /* 消费者场景区域 */
+      .consumer-scenario-container {
+        width: 90%;
+        max-width: 1100px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 5;
+      }
+
+      .scenario-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
+        margin-top: 20px;
+      }
+
+      .scenario-card {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+        padding: 25px;
+        position: relative;
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      .scenario-card:hover {
+        transform: translateY(-10px) !important;
+        box-shadow: 0 15px 30px rgba(255, 78, 0, 0.1);
+      }
+
+      .scenario-card:nth-child(1) {
+        animation: fadeInUp 0.5s ease-out forwards 0.3s;
+      }
+      .scenario-card:nth-child(2) {
+        animation: fadeInUp 0.5s ease-out forwards 0.5s;
+      }
+      .scenario-card:nth-child(3) {
+        animation: fadeInUp 0.5s ease-out forwards 0.7s;
+      }
+      .scenario-card:nth-child(4) {
+        animation: fadeInUp 0.5s ease-out forwards 0.9s;
+      }
+      .scenario-card:nth-child(5) {
+        animation: fadeInUp 0.5s ease-out forwards 1.1s;
+      }
+
+      .scenario-icon-container {
+        width: 120px;
+        height: 120px;
+        border-radius: 12px;
+        background-color: rgba(255, 78, 0, 0.05);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 20px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .scenario-card:hover .scenario-icon-container {
+        box-shadow: 0 5px 15px rgba(255, 78, 0, 0.2);
+      }
+
+      .scenario-svg {
+        width: 100%;
+        height: 100%;
+        transition: transform 0.5s ease;
+      }
+
+      .scenario-card:hover .scenario-svg {
+        transform: scale(1.1);
+      }
+
+      .scenario-title {
+        margin-bottom: 12px;
+        font-weight: 600;
+        color: #003366;
+        font-size: 1.3rem;
+        position: relative;
+        display: inline-block;
+      }
+
+      .scenario-title::after {
+        content: "";
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background-color: #ff4e00;
+        transition: width 0.3s ease;
+      }
+
+      .scenario-card:hover .scenario-title::after {
+        width: 100%;
+      }
+
+      .scenario-desc {
+        color: #666;
+        line-height: 1.6;
+      }
+
+      /* 画布背景 */
+      .canvas-background {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 0;
+        opacity: 0.03;
+      }
+
+      /* 动态购物图标 */
+      .shopping-cart-animation {
+        position: absolute;
+        top: 15%;
+        right: 10%;
+        width: 100px;
+        height: 100px;
+        z-index: 1;
+        opacity: 0.2;
+        animation: floatAndRotate 10s infinite linear;
+      }
+
+      /* 动态流程线 */
+      .flow-line {
+        position: absolute;
+        top: 50%;
+        left: 10%;
+        width: 80%;
+        height: 2px;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 78, 0, 0.1),
+          rgba(255, 78, 0, 0.3),
+          rgba(255, 78, 0, 0.1)
+        );
+        z-index: 1;
+      }
+
+      .flow-dot {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: #ff4e00;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        animation: flowMotion 4s infinite linear;
+      }
+
+      /* 装饰圆圈 */
+      .decoration-circle {
+        position: absolute;
+        border-radius: 50%;
+        opacity: 0.05;
+        z-index: 0;
+      }
+
+      .circle-1 {
+        width: 300px;
+        height: 300px;
+        background-color: #ff4e00;
+        bottom: -150px;
+        left: -100px;
+      }
+
+      .circle-2 {
+        width: 200px;
+        height: 200px;
+        background-color: #003366;
+        top: -100px;
+        right: 10%;
+      }
+
+      /* 波浪效果 */
+      .wave-container {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 150px;
+        overflow: hidden;
+        z-index: 0;
+      }
+
+      .wave {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 200%;
+        height: 100px;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23ff4e00' fill-opacity='0.05' d='M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+        background-size: contain;
+        background-repeat: repeat-x;
+        animation: waveAnimation 15s linear infinite;
+      }
+
+      .wave-2 {
+        animation-delay: -5s;
+        bottom: -20px;
+        opacity: 0.5;
+      }
+
+      /* 动画定义 */
+      @keyframes fadeInDown {
+        from {
+          transform: translateY(-30px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          transform: translateY(30px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes growWidth {
+        from {
+          width: 0;
+        }
+        to {
+          width: 80px;
+        }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      @keyframes floatAndRotate {
+        0% {
+          transform: rotate(0deg) translateY(0);
+        }
+        25% {
+          transform: rotate(90deg) translateY(-20px);
+        }
+        50% {
+          transform: rotate(180deg) translateY(0);
+        }
+        75% {
+          transform: rotate(270deg) translateY(20px);
+        }
+        100% {
+          transform: rotate(360deg) translateY(0);
+        }
+      }
+
+      @keyframes flowMotion {
+        0% {
+          left: 0%;
+          opacity: 0;
+        }
+        10% {
+          opacity: 1;
+        }
+        90% {
+          opacity: 1;
+        }
+        100% {
+          left: 100%;
+          opacity: 0;
+        }
+      }
+
+      @keyframes waveAnimation {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-50%);
+        }
+      }
+
+      @keyframes slideInRight {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      .slide-out {
+        animation: slideOutLeft 0.8s ease-out forwards;
+      }
+
+      @keyframes slideOutLeft {
+        from {
+          transform: translateX(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateX(-100%);
+          opacity: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container flex flex-col items-center">
+      <!-- 装饰元素 -->
+      <div class="decoration-circle circle-1"></div>
+      <div class="decoration-circle circle-2"></div>
+
+      <!-- 波浪背景 -->
+      <div class="wave-container">
+        <div class="wave"></div>
+        <div class="wave wave-2"></div>
+      </div>
+
+      <!-- 动画元素 -->
+      <div class="shopping-cart-animation">
+        <!-- SVG 购物车图标 -->
+        <svg viewBox="0 0 24 24" width="100%" height="100%" fill="#ff4e00">
+          <path
+            d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 3h1l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H6.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H4.21l-.67-1.43c-.14-.3-.44-.49-.77-.49H1v2zm16 15c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"
+          />
+        </svg>
+      </div>
+
+      <div class="flow-line">
+        <div class="flow-dot"></div>
+      </div>
+
+      <!-- Logo -->
+      <div class="logo-container">
+        <img
+          src="images/temu_logo.svg"
+          alt="Temu Logo"
+          width="100"
+          height="30"
+        />
+      </div>
+
+      <!-- 标题 -->
+      <div class="title-container text-center mt-16 mb-8">
+        <h1 class="text-4xl font-bold text-temu-blue mb-2">消费者使用场景</h1>
+        <div class="animated-bar bg-temu-orange mx-auto"></div>
+      </div>
+
+      <!-- 内容卡片 -->
+      <div class="consumer-scenario-container">
+        <div class="scenario-grid">
+          <!-- 浏览商品 -->
+          <div class="scenario-card">
+            <div class="scenario-icon-container">
+              <svg class="scenario-svg" viewBox="0 0 120 120">
+                <defs>
+                  <linearGradient
+                    id="grad1"
+                    x1="0%"
+                    y1="0%"
+                    x2="100%"
+                    y2="100%"
+                  >
+                    <stop
+                      offset="0%"
+                      style="stop-color: #ff4e00; stop-opacity: 0.1"
+                    />
+                    <stop
+                      offset="100%"
+                      style="stop-color: #ff4e00; stop-opacity: 0.3"
+                    />
+                  </linearGradient>
+                </defs>
+                <rect width="120" height="120" fill="url(#grad1)" />
+                <circle
+                  cx="45"
+                  cy="45"
+                  r="20"
+                  fill="white"
+                  stroke="#ff4e00"
+                  stroke-width="2"
+                />
+                <path d="M60 60 L75 75" stroke="#ff4e00" stroke-width="4" />
+                <circle cx="75" cy="75" r="5" fill="#ff4e00" />
+
+                <!-- 动画商品项目 -->
+                <rect x="25" y="35" width="10" height="2" fill="#003366">
+                  <animate
+                    attributeName="width"
+                    values="10;15;10"
+                    dur="2s"
+                    repeatCount="indefinite"
+                  />
+                </rect>
+                <rect x="25" y="40" width="8" height="2" fill="#003366">
+                  <animate
+                    attributeName="width"
+                    values="8;12;8"
+                    dur="1.5s"
+                    repeatCount="indefinite"
+                  />
+                </rect>
+                <rect x="25" y="45" width="12" height="2" fill="#003366">
+                  <animate
+                    attributeName="width"
+                    values="12;16;12"
+                    dur="1.8s"
+                    repeatCount="indefinite"
+                  />
+                </rect>
+
+                <!-- 动画放大镜把手 -->
+                <rect
+                  x="65"
+                  cy="65"
+                  rx="2"
+                  ry="2"
+                  width="5"
+                  height="15"
+                  transform="rotate(45, 60, 60)"
+                  fill="#ff4e00"
+                >
+                  <animate
+                    attributeName="height"
+                    values="15;17;15"
+                    dur="1.5s"
+                    repeatCount="indefinite"
+                  />
+                </rect>
+              </svg>
+            </div>
+            <h3 class="scenario-title">浏览商品</h3>
+            <p class="scenario-desc">
+              通过分类导航或搜索功能查找商品，支持多语言界面和智能筛选功能
+            </p>
+          </div>
+
+          <!-- 下单购买 -->
+          <div class="scenario-card">
+            <div class="scenario-icon-container">
+              <svg class="scenario-svg" viewBox="0 0 120 120">
+                <defs>
+                  <linearGradient
+                    id="grad2"
+                    x1="0%"
+                    y1="0%"
+                    x2="100%"
+                    y2="100%"
+                  >
+                    <stop
+                      offset="0%"
+                      style="stop-color: #ff4e00; stop-opacity: 0.1"
+                    />
+                    <stop
+                      offset="100%"
+                      style="stop-color: #ff4e00; stop-opacity: 0.3"
+                    />
+                  </linearGradient>
+                </defs>
+                <rect width="120" height="120" fill="url(#grad2)" />
+
+                <!-- 购物车 -->
+                <path
+                  d="M30,40 L90,40 L80,70 L40,70 Z"
+                  fill="white"
+                  stroke="#ff4e00"
+                  stroke-width="2"
+                />
+                <path
+                  d="M45,75 L45,85 M75,75 L75,85"
+                  stroke="#ff4e00"
+                  stroke-width="2"
+                />
+                <circle cx="45" cy="90" r="5" fill="#ff4e00" />
+                <circle cx="75" cy="90" r="5" fill="#ff4e00" />
+
+                <!-- 动画添加商品 -->
+                <circle
+                  cx="60"
+                  cy="30"
+                  r="8"
+                  fill="white"
+                  stroke="#003366"
+                  stroke-width="2"
+                >
+                  <animate
+                    attributeName="r"
+                    values="8;10;8"
+                    dur="2s"
+                    repeatCount="indefinite"
+                  />
+                  <animate
+                    attributeName="cy"
+                    values="30;40;30"
+                    dur="1.5s"
+                    begin="0.5s"
+                    repeatCount="3"
+                  />
+                </circle>
+                <line
+                  x1="55"
+                  y1="30"
+                  x2="65"
+                  y2="30"
+                  stroke="#003366"
+                  stroke-width="2"
+                />
+                <line
+                  x1="60"
+                  y1="25"
+                  x2="60"
+                  y2="35"
+                  stroke="#003366"
+                  stroke-width="2"
+                />
+              </svg>
+            </div>
+            <h3 class="scenario-title">下单购买</h3>
+            <p class="scenario-desc">
+              添加至购物车并完成支付，支持多种支付方式和货币自动转换
+            </p>
+          </div>
+
+          <!-- 物流跟踪 -->
+          <div class="scenario-card">
+            <div class="scenario-icon-container">
+              <svg class="scenario-svg" viewBox="0 0 120 120">
+                <defs>
+                  <linearGradient
+                    id="grad3"
+                    x1="0%"
+                    y1="0%"
+                    x2="100%"
+                    y2="100%"
+                  >
+                    <stop
+                      offset="0%"
+                      style="stop-color: #ff4e00; stop-opacity: 0.1"
+                    />
+                    <stop
+                      offset="100%"
+                      style="stop-color: #ff4e00; stop-opacity: 0.3"
+                    />
+                  </linearGradient>
+                </defs>
+                <rect width="120" height="120" fill="url(#grad3)" />
+
+                <!-- 路线图 -->
+                <path
+                  d="M20,90 C40,30 70,80 100,30"
+                  stroke="#003366"
+                  stroke-width="2"
+                  stroke-dasharray="4 2"
+                  fill="none"
+                />
+
+                <!-- 起点和终点标记 -->
+                <circle cx="20" cy="90" r="6" fill="#003366" />
+                <text x="15" y="105" fill="#003366" font-size="10">发货</text>
+
+                <circle cx="100" cy="30" r="6" fill="#ff4e00" />
+                <text x="90" y="20" fill="#ff4e00" font-size="10">收货</text>
+
+                <!-- 移动的包裹 -->
+                <rect
+                  id="package"
+                  x="0"
+                  y="0"
+                  width="12"
+                  height="12"
+                  rx="2"
+                  fill="#ff4e00"
+                >
+                  <animateMotion
+                    path="M20,90 C40,30 70,80 100,30"
+                    dur="4s"
+                    repeatCount="indefinite"
+                  />
+                </rect>
+
+                <!-- 中途站点 -->
+                <circle cx="40" cy="30" r="3" fill="#003366" />
+                <circle cx="70" cy="80" r="3" fill="#003366" />
+              </svg>
+            </div>
+            <h3 class="scenario-title">物流跟踪</h3>
+            <p class="scenario-desc">
+              实时查看包裹状态和预计到达时间，提供多语言物流信息更新
+            </p>
+          </div>
+
+          <!-- 商品评价 -->
+          <div class="scenario-card">
+            <div class="scenario-icon-container">
+              <svg class="scenario-svg" viewBox="0 0 120 120">
+                <defs>
+                  <linearGradient
+                    id="grad4"
+                    x1="0%"
+                    y1="0%"
+                    x2="100%"
+                    y2="100%"
+                  >
+                    <stop
+                      offset="0%"
+                      style="stop-color: #ff4e00; stop-opacity: 0.1"
+                    />
+                    <stop
+                      offset="100%"
+                      style="stop-color: #ff4e00; stop-opacity: 0.3"
+                    />
+                  </linearGradient>
+                  <filter id="glow">
+                    <feGaussianBlur stdDeviation="2.5" result="coloredBlur" />
+                    <feMerge>
+                      <feMergeNode in="coloredBlur" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
+                </defs>
+                <rect width="120" height="120" fill="url(#grad4)" />
+
+                <!-- 评价星星 -->
+                <g filter="url(#glow)">
+                  <path
+                    d="M30,50 L35,40 L40,50 L50,52 L40,60 L45,70 L35,65 L25,70 L30,60 L20,52 Z"
+                    fill="#ffcb33"
+                  >
+                    <animate
+                      attributeName="fill-opacity"
+                      values="1;0.7;1"
+                      dur="2s"
+                      repeatCount="indefinite"
+                    />
+                  </path>
+                  <path
+                    d="M50,50 L55,40 L60,50 L70,52 L60,60 L65,70 L55,65 L45,70 L50,60 L40,52 Z"
+                    fill="#ffcb33"
+                  >
+                    <animate
+                      attributeName="fill-opacity"
+                      values="0.7;1;0.7"
+                      dur="2s"
+                      repeatCount="indefinite"
+                    />
+                  </path>
+                  <path
+                    d="M70,50 L75,40 L80,50 L90,52 L80,60 L85,70 L75,65 L65,70 L70,60 L60,52 Z"
+                    fill="#ffcb33"
+                  >
+                    <animate
+                      attributeName="fill-opacity"
+                      values="0.9;0.6;0.9"
+                      dur="2s"
+                      repeatCount="indefinite"
+                    />
+                  </path>
+                </g>
+
+                <!-- 评价文字 -->
+                <rect
+                  x="25"
+                  y="80"
+                  width="70"
+                  height="3"
+                  rx="1"
+                  fill="#003366"
+                />
+                <rect
+                  x="25"
+                  y="88"
+                  width="50"
+                  height="3"
+                  rx="1"
+                  fill="#003366"
+                />
+                <rect
+                  x="25"
+                  y="96"
+                  width="60"
+                  height="3"
+                  rx="1"
+                  fill="#003366"
+                />
+              </svg>
+            </div>
+            <h3 class="scenario-title">商品评价</h3>
+            <p class="scenario-desc">
+              提交文字评价、上传图片、评分与标签选择，支持多语言评价展示
+            </p>
+          </div>
+
+          <!-- 推荐商品 -->
+          <div class="scenario-card">
+            <div class="scenario-icon-container">
+              <svg class="scenario-svg" viewBox="0 0 120 120">
+                <defs>
+                  <linearGradient
+                    id="grad5"
+                    x1="0%"
+                    y1="0%"
+                    x2="100%"
+                    y2="100%"
+                  >
+                    <stop
+                      offset="0%"
+                      style="stop-color: #ff4e00; stop-opacity: 0.1"
+                    />
+                    <stop
+                      offset="100%"
+                      style="stop-color: #ff4e00; stop-opacity: 0.3"
+                    />
+                  </linearGradient>
+                  <pattern
+                    id="grid"
+                    width="10"
+                    height="10"
+                    patternUnits="userSpaceOnUse"
+                  >
+                    <rect width="10" height="10" fill="none" />
+                    <path
+                      d="M 10 0 L 0 0 0 10"
+                      stroke="#003366"
+                      stroke-width="0.5"
+                      fill="none"
+                      stroke-opacity="0.2"
+                    />
+                  </pattern>
+                </defs>
+                <rect width="120" height="120" fill="url(#grad5)" />
+                <rect width="120" height="120" fill="url(#grid)" />
+
+                <!-- 用户头像 -->
+                <circle
+                  cx="30"
+                  cy="60"
+                  r="15"
+                  fill="white"
+                  stroke="#003366"
+                  stroke-width="1"
+                />
+                <path
+                  d="M30,55 a5,5 0 1,1 0,0.1 Z"
+                  stroke="#003366"
+                  stroke-width="1"
+                  fill="none"
+                />
+                <path
+                  d="M22,70 C22,65 38,65 38,70"
+                  stroke="#003366"
+                  stroke-width="1"
+                  fill="none"
+                />
+
+                <!-- 推荐连接 -->
+                <line
+                  x1="45"
+                  y1="60"
+                  x2="55"
+                  y2="40"
+                  stroke="#ff4e00"
+                  stroke-width="1"
+                  stroke-dasharray="2 1"
+                />
+                <line
+                  x1="45"
+                  y1="60"
+                  x2="55"
+                  y2="60"
+                  stroke="#ff4e00"
+                  stroke-width="1"
+                  stroke-dasharray="2 1"
+                />
+                <line
+                  x1="45"
+                  y1="60"
+                  x2="55"
+                  y2="80"
+                  stroke="#ff4e00"
+                  stroke-width="1"
+                  stroke-dasharray="2 1"
+                />
+
+                <!-- 推荐商品 -->
+                <rect
+                  x="55"
+                  y="30"
+                  width="20"
+                  height="20"
+                  rx="3"
+                  fill="white"
+                  stroke="#ff4e00"
+                  stroke-width="1"
+                >
+                  <animate
+                    attributeName="stroke-width"
+                    values="1;2;1"
+                    dur="2s"
+                    repeatCount="indefinite"
+                  />
+                </rect>
+                <rect
+                  x="55"
+                  y="50"
+                  width="20"
+                  height="20"
+                  rx="3"
+                  fill="white"
+                  stroke="#ff4e00"
+                  stroke-width="1"
+                >
+                  <animate
+                    attributeName="stroke-width"
+                    values="1;2;1"
+                    dur="2.5s"
+                    repeatCount="indefinite"
+                  />
+                </rect>
+                <rect
+                  x="55"
+                  y="70"
+                  width="20"
+                  height="20"
+                  rx="3"
+                  fill="white"
+                  stroke="#ff4e00"
+                  stroke-width="1"
+                >
+                  <animate
+                    attributeName="stroke-width"
+                    values="1;2;1"
+                    dur="3s"
+                    repeatCount="indefinite"
+                  />
+                </rect>
+
+                <!-- 推荐箭头 -->
+                <path
+                  d="M85,60 L100,60 M95,55 L100,60 L95,65"
+                  stroke="#003366"
+                  stroke-width="2"
+                  fill="none"
+                >
+                  <animate
+                    attributeName="transform"
+                    attributeType="XML"
+                    type="translate"
+                    values="0,0; 5,0; 0,0"
+                    dur="1s"
+                    repeatCount="indefinite"
+                  />
+                </path>
+              </svg>
+            </div>
+            <h3 class="scenario-title">推荐商品</h3>
+            <p class="scenario-desc">
+              基于兴趣和浏览历史推荐相关商品，个性化智能推荐系统
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 画布背景 -->
+      <canvas id="bgCanvas" class="canvas-background"></canvas>
+
+      <!-- 页码 -->
+      <div class="page-number">5 / 20</div>
+    </div>
+
+    <script>
+      // 创建动态背景
+      document.addEventListener("DOMContentLoaded", function () {
+        const canvas = document.getElementById("bgCanvas");
+        const ctx = canvas.getContext("2d");
+
+        function resizeCanvas() {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+        }
+
+        resizeCanvas();
+        window.addEventListener("resize", resizeCanvas);
+
+        // 创建浮动的点
+        const points = [];
+        const pointCount = 50;
+
+        for (let i = 0; i < pointCount; i++) {
+          points.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            radius: Math.random() * 3 + 1,
+            speed: Math.random() * 0.3 + 0.1,
+            angle: Math.random() * 360,
+            rotation: (Math.random() - 0.5) * 0.01,
+            color: i % 3 === 0 ? "#ff4e00" : "#003366",
+          });
+        }
+
+        function drawPoints() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+          // 绘制连接线
+          ctx.strokeStyle = "rgba(0, 0, 0, 0.03)";
+          ctx.beginPath();
+          for (let i = 0; i < pointCount; i++) {
+            for (let j = i + 1; j < pointCount; j++) {
+              const dx = points[i].x - points[j].x;
+              const dy = points[i].y - points[j].y;
+              const distance = Math.sqrt(dx * dx + dy * dy);
+
+              if (distance < 150) {
+                ctx.moveTo(points[i].x, points[i].y);
+                ctx.lineTo(points[j].x, points[j].y);
+              }
+            }
+          }
+          ctx.stroke();
+
+          // 绘制点
+          for (let i = 0; i < pointCount; i++) {
+            ctx.fillStyle = points[i].color
+              .replace(")", ", 0.1)")
+              .replace("rgb", "rgba");
+            ctx.beginPath();
+            ctx.arc(points[i].x, points[i].y, points[i].radius, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+
+        function updatePoints() {
+          for (let i = 0; i < pointCount; i++) {
+            const point = points[i];
+
+            // 点移动
+            point.angle += point.rotation;
+            point.x += Math.cos(point.angle) * point.speed;
+            point.y += Math.sin(point.angle) * point.speed;
+
+            // 边界检查
+            if (point.x < -10) point.x = canvas.width + 10;
+            if (point.x > canvas.width + 10) point.x = -10;
+            if (point.y < -10) point.y = canvas.height + 10;
+            if (point.y > canvas.height + 10) point.y = -10;
+          }
+        }
+
+        function animate() {
+          updatePoints();
+          drawPoints();
+          requestAnimationFrame(animate);
+        }
+
+        animate();
+      });
+    </script>
+  </body>
+</html>

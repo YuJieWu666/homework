@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Temu跨境电商平台系统设计 - 用户体验问题</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary: #2a3f8a;
+        --accent: #ff4e00;
+        --error: #e53935;
+        --warning: #ff9800;
+        --success: #43a047;
+        --info: #2196f3;
+        --bg-color: #f8f9fa;
+        --card-bg: #ffffff;
+        --text-primary: #2c3e50;
+        --text-secondary: #546e7a;
+        --border-color: #e0e0e0;
+        --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+        --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Noto Sans SC", sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-primary);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      .page-container {
+        position: relative;
+        width: 100%;
+        min-height: 100vh;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+      }
+
+      .title-section {
+        flex: 1;
+      }
+
+      .title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 10px;
+      }
+
+      .subtitle {
+        font-size: 1.1rem;
+        color: var(--text-secondary);
+        font-weight: 400;
+      }
+
+      .logo {
+        width: 120px;
+        height: auto;
+      }
+
+      .content-wrapper {
+        display: flex;
+        gap: 40px;
+        flex: 1;
+      }
+
+      .emotion-image {
+        flex: 0 0 400px;
+        height: 500px;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: var(--shadow-lg);
+        position: relative;
+      }
+
+      .emotion-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .emotion-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 20px;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+        color: white;
+      }
+
+      .emotion-text {
+        font-size: 1.2rem;
+        font-weight: 500;
+        margin-bottom: 8px;
+      }
+
+      .emotion-description {
+        font-size: 0.9rem;
+        opacity: 0.9;
+      }
+
+      .problems-grid {
+        flex: 1;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 25px;
+        align-content: start;
+      }
+
+      .problem-card {
+        background: var(--card-bg);
+        border-radius: 16px;
+        padding: 25px;
+        box-shadow: var(--shadow-md);
+        transition: all 0.3s ease;
+        border: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .problem-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+      }
+
+      .problem-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .problem-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+      }
+
+      .problem-card:nth-child(1) .problem-icon {
+        background-color: rgba(229, 57, 53, 0.1);
+        color: var(--error);
+      }
+
+      .problem-card:nth-child(2) .problem-icon {
+        background-color: rgba(255, 152, 0, 0.1);
+        color: var(--warning);
+      }
+
+      .problem-card:nth-child(3) .problem-icon {
+        background-color: rgba(33, 150, 243, 0.1);
+        color: var(--info);
+      }
+
+      .problem-card:nth-child(4) .problem-icon {
+        background-color: rgba(67, 160, 71, 0.1);
+        color: var(--success);
+      }
+
+      .problem-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .problem-description {
+        font-size: 0.95rem;
+        color: var(--text-secondary);
+        line-height: 1.6;
+      }
+
+      .problem-illustration {
+        margin-top: auto;
+        height: 100px;
+        background-color: #f8f9fa;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      /* 搜索问题插图 */
+      .search-illustration {
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .search-bar {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 8px 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .search-input {
+        flex: 1;
+        border: none;
+        outline: none;
+        font-size: 0.9rem;
+        color: var(--text-primary);
+      }
+
+      .search-results {
+        display: flex;
+        gap: 8px;
+      }
+
+      .search-item {
+        flex: 1;
+        aspect-ratio: 1;
+        background: white;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        border: 1px solid var(--border-color);
+      }
+
+      .search-item.wrong {
+        border-color: var(--error);
+        animation: shake 0.5s ease-in-out;
+      }
+
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-5px);
+        }
+        75% {
+          transform: translateX(5px);
+        }
+      }
+
+      /* 语言切换问题插图 */
+      .language-illustration {
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .language-buttons {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+      }
+
+      .language-btn {
+        padding: 6px 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        font-size: 0.9rem;
+        background: white;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .language-btn.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+      }
+
+      .loading-indicator {
+        text-align: center;
+        color: var(--warning);
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      /* 评价系统问题插图 */
+      .reviews-illustration {
+        padding: 15px;
+      }
+
+      .review-item {
+        background: white;
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 8px;
+        border: 1px solid var(--border-color);
+      }
+
+      .review-stars {
+        color: #ffd700;
+        font-size: 0.9rem;
+        margin-bottom: 4px;
+      }
+
+      .review-text {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+      }
+
+      .filter-missing {
+        text-align: center;
+        background: rgba(33, 150, 243, 0.1);
+        color: var(--info);
+        padding: 8px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        margin-top: 8px;
+      }
+
+      /* 物流问题插图 */
+      .logistics-illustration {
+        padding: 15px;
+      }
+
+      .timeline {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        border: 1px solid var(--border-color);
+      }
+
+      .timeline-track {
+        height: 4px;
+        background: #e0e0e0;
+        border-radius: 2px;
+        position: relative;
+        margin: 20px 0;
+      }
+
+      .timeline-progress {
+        position: absolute;
+        height: 100%;
+        background: var(--success);
+        border-radius: 2px;
+        width: 30%;
+        transition: width 1s ease;
+      }
+
+      .timeline-points {
+        display: flex;
+        justify-content: space-between;
+        margin-top: -12px;
+      }
+
+      .timeline-point {
+        width: 24px;
+        height: 24px;
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+      }
+
+      .timeline-point.active {
+        border-color: var(--success);
+        color: var(--success);
+      }
+
+      .timeline-status {
+        text-align: center;
+        color: var(--warning);
+        font-size: 0.9rem;
+        margin-top: 12px;
+      }
+
+      .page-number {
+        position: absolute;
+        bottom: 20px;
+        right: 30px;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+      }
+
+      @media (max-width: 1200px) {
+        .content-wrapper {
+          flex-direction: column;
+        }
+
+        .emotion-image {
+          width: 100%;
+          height: 300px;
+        }
+
+        .problems-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* 新增样式 */
+      .quality-check {
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .quality-item {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-size: 0.9rem;
+      }
+
+      .quality-item.wrong {
+        border-color: var(--error);
+        color: var(--error);
+      }
+
+      .quality-warning {
+        text-align: center;
+        background: rgba(229, 57, 53, 0.1);
+        color: var(--error);
+        padding: 8px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        margin-top: 8px;
+      }
+
+      .description-illustration {
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .description-item {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 10px;
+      }
+
+      .description-label {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        margin-bottom: 4px;
+      }
+
+      .description-text {
+        font-size: 0.9rem;
+      }
+
+      .description-text.wrong {
+        color: var(--error);
+      }
+
+      .description-warning {
+        text-align: center;
+        background: rgba(229, 57, 53, 0.1);
+        color: var(--error);
+        padding: 8px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+      }
+
+      .specs-illustration {
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .specs-item {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 8px 12px;
+      }
+
+      .specs-label {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        margin-bottom: 4px;
+      }
+
+      .specs-text {
+        font-size: 0.9rem;
+      }
+
+      .specs-missing {
+        text-align: center;
+        background: rgba(33, 150, 243, 0.1);
+        color: var(--info);
+        padding: 8px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+      }
+
+      .return-illustration {
+        padding: 15px;
+      }
+
+      .return-timeline {
+        display: flex;
+        justify-content: space-between;
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 12px;
+      }
+
+      .return-step {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        text-align: center;
+        position: relative;
+        flex: 1;
+      }
+
+      .return-step:not(:last-child)::after {
+        content: "→";
+        position: absolute;
+        right: -10px;
+        color: var(--border-color);
+      }
+
+      .return-warning {
+        text-align: center;
+        background: rgba(255, 152, 0, 0.1);
+        color: var(--warning);
+        padding: 8px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        margin-top: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-container">
+      <div class="header">
+        <div class="title-section">
+          <h1 class="title">产品质量与描述问题</h1>
+          <p class="subtitle">PRODUCT QUALITY & DESCRIPTION ISSUES</p>
+        </div>
+        <img src="images/temu_logo.svg" alt="Temu Logo" class="logo" />
+      </div>
+
+      <div class="content-wrapper">
+        <div class="emotion-image">
+          <img src="static/Angry.jpg" alt="用户情绪" />
+          <div class="emotion-overlay">
+            <div class="emotion-text">用户痛点</div>
+            <div class="emotion-description">
+              产品质量问题导致用户信任度下降和退货率上升
+            </div>
+          </div>
+        </div>
+
+        <div class="problems-grid">
+          <!-- 商品质量控制问题 -->
+          <div class="problem-card">
+            <div class="problem-header">
+              <div class="problem-icon">🔍</div>
+              <h2 class="problem-title">商品质量控制不足</h2>
+            </div>
+            <p class="problem-description">
+              商品质量参差不齐，缺乏统一的质量标准，导致用户收到劣质商品，影响购物体验和平台信誉。
+            </p>
+            <div class="problem-illustration">
+              <div class="search-illustration">
+                <div class="quality-check">
+                  <div class="quality-item">✓ 合格品</div>
+                  <div class="quality-item wrong">✗ 次品</div>
+                  <div class="quality-item wrong">✗ 残次品</div>
+                  <div class="quality-item wrong">✗ 仿冒品</div>
+                </div>
+                <div class="quality-warning">⚠️ 缺乏统一的质量控制标准</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 商品描述问题 -->
+          <div class="problem-card">
+            <div class="problem-header">
+              <div class="problem-icon">📝</div>
+              <h2 class="problem-title">商品描述与实际不符</h2>
+            </div>
+            <p class="problem-description">
+              商品描述存在夸大或误导性内容，实物与描述差异较大，导致用户期望与实际不符，增加退货率。
+            </p>
+            <div class="problem-illustration">
+              <div class="description-illustration">
+                <div class="description-item">
+                  <div class="description-label">描述</div>
+                  <div class="description-text">优质面料，做工精细</div>
+                </div>
+                <div class="description-item">
+                  <div class="description-label">实际</div>
+                  <div class="description-text wrong">面料粗糙，线头多</div>
+                </div>
+                <div class="description-warning">⚠️ 描述与实际严重不符</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 规格信息问题 -->
+          <div class="problem-card">
+            <div class="problem-header">
+              <div class="problem-icon">📏</div>
+              <h2 class="problem-title">规格信息不完整</h2>
+            </div>
+            <p class="problem-description">
+              商品规格参数描述不详细，缺少关键尺寸信息，用户难以准确判断商品是否适合，增加购买决策难度。
+            </p>
+            <div class="problem-illustration">
+              <div class="specs-illustration">
+                <div class="specs-item">
+                  <div class="specs-label">尺寸</div>
+                  <div class="specs-text">M码</div>
+                </div>
+                <div class="specs-item">
+                  <div class="specs-label">材质</div>
+                  <div class="specs-text">面料</div>
+                </div>
+                <div class="specs-missing">⚠️ 缺少详细规格参数</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 退换货流程问题 -->
+          <div class="problem-card">
+            <div class="problem-header">
+              <div class="problem-icon">🔄</div>
+              <h2 class="problem-title">退换货流程复杂</h2>
+            </div>
+            <p class="problem-description">
+              退换货流程繁琐，审核周期长，退款到账慢，增加用户维权成本，影响用户购物体验和平台口碑。
+            </p>
+            <div class="problem-illustration">
+              <div class="return-illustration">
+                <div class="return-timeline">
+                  <div class="return-step">申请退货</div>
+                  <div class="return-step">等待审核</div>
+                  <div class="return-step">寄回商品</div>
+                  <div class="return-step">等待退款</div>
+                </div>
+                <div class="return-warning">⚠️ 流程繁琐，耗时较长</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-number">9 / 20</div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // 为错误项添加动画效果
+        const wrongItems = document.querySelectorAll(".wrong");
+        wrongItems.forEach((item) => {
+          setInterval(() => {
+            item.style.animation = "none";
+            item.offsetHeight; // 触发重绘
+            item.style.animation = "shake 0.5s ease-in-out";
+          }, 3000);
+        });
+      });
+    </script>
+  </body>
+</html>

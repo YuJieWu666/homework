@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Temu跨境电商平台系统设计</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .slide-container {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #ffffff 0%, #f8f8f8 100%);
+        position: relative;
+        overflow: hidden;
+        font-family: "Noto Sans SC", sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        animation: slideInRight 0.8s ease-out forwards;
+      }
+      .bg-temu-orange {
+        background-color: #ff4e00;
+      }
+      .text-temu-orange {
+        color: #ff4e00;
+      }
+      .bg-temu-blue {
+        background-color: #003366;
+      }
+      .text-temu-blue {
+        color: #003366;
+      }
+      .global-bg {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: url("images/gb.png");
+        background-size: cover;
+        background-position: center;
+        opacity: 0.15;
+        z-index: 0;
+      }
+      .content {
+        position: relative;
+        z-index: 1;
+        max-width: 1200px;
+        width: 90%;
+      }
+      .logo {
+        width: 200px;
+        height: auto;
+        animation: fadeInDown 1.2s ease-out;
+      }
+      .title {
+        font-size: 3.5rem;
+        animation: fadeInLeft 1s ease-out;
+      }
+      .subtitle {
+        font-size: 1.8rem;
+        animation: fadeInRight 1.2s ease-out;
+      }
+      .animated-bar {
+        width: 120px;
+        height: 6px;
+        animation: growWidth 1.4s ease-out;
+      }
+      .footer {
+        animation: fadeInUp 1.5s ease-out;
+      }
+      .globe-icon {
+        position: absolute;
+        right: 50px;
+        top: 50px;
+        color: #ff4e00;
+        opacity: 0.8;
+        animation: spin 20s linear infinite;
+      }
+      .circle-decoration {
+        position: absolute;
+        border-radius: 50%;
+        background-color: #ff4e00;
+        opacity: 0.1;
+        z-index: 0;
+      }
+      .circle-1 {
+        width: 300px;
+        height: 300px;
+        top: -100px;
+        left: -100px;
+        animation: float 8s ease-in-out infinite;
+      }
+      .circle-2 {
+        width: 200px;
+        height: 200px;
+        bottom: -50px;
+        right: -50px;
+        animation: float 7s ease-in-out infinite 1s;
+      }
+
+      @keyframes fadeInDown {
+        from {
+          transform: translateY(-50px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+      @keyframes fadeInLeft {
+        from {
+          transform: translateX(-50px);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      @keyframes fadeInRight {
+        from {
+          transform: translateX(50px);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      @keyframes fadeInUp {
+        from {
+          transform: translateY(30px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+      @keyframes growWidth {
+        from {
+          width: 0;
+        }
+        to {
+          width: 120px;
+        }
+      }
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes float {
+        0% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-20px);
+        }
+        100% {
+          transform: translateY(0px);
+        }
+      }
+      @keyframes slideInRight {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      .slide-out {
+        animation: slideOutLeft 0.8s ease-out forwards;
+      }
+      @keyframes slideOutLeft {
+        from {
+          transform: translateX(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateX(-100%);
+          opacity: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container">
+      <!-- Background Elements -->
+      <div class="global-bg"></div>
+      <div class="circle-decoration circle-1"></div>
+      <div class="circle-decoration circle-2"></div>
+
+      <!-- Globe Icon -->
+      <div class="globe-icon">
+        <i class="fas fa-globe-asia fa-4x"></i>
+      </div>
+
+      <!-- Main Content -->
+      <div
+        class="content flex flex-col items-center justify-center py-16 text-center"
+      >
+        <!-- Logo -->
+        <div class="mb-6 logo">
+          <svg viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M31.5,15 C40.8,15 48.5,22.7 48.5,32 C48.5,41.3 40.8,49 31.5,49 C22.2,49 14.5,41.3 14.5,32 C14.5,22.7 22.2,15 31.5,15 Z"
+              fill="#FF4E00"
+            />
+            <text
+              x="65"
+              y="38"
+              font-family="Arial"
+              font-size="24"
+              font-weight="bold"
+              fill="#FF4E00"
+            >
+              TEMU
+            </text>
+          </svg>
+        </div>
+
+        <!-- Title -->
+        <h1 class="title font-bold text-temu-blue mb-4">
+          Temu跨境电商平台系统设计汇报
+        </h1>
+
+        <!-- Decorative Bar -->
+        <div class="animated-bar bg-temu-orange mb-5"></div>
+
+        <!-- Subtitle -->
+        <p class="subtitle text-temu-blue opacity-90 mb-12">
+          全球化购物体验的创新解决方案
+        </p>
+      </div>
+
+      <!-- Footer -->
+      <div
+        class="footer absolute bottom-8 left-0 w-full flex justify-between px-12"
+      >
+        <div class="text-temu-blue opacity-80 text-sm">
+          <p>张舒颜 吴宇杰 张娇</p>
+        </div>
+        <div class="text-temu-blue opacity-80 text-sm">
+          <p>2025年5月</p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
